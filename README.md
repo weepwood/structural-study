@@ -99,7 +99,7 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 需设为 **GitHub Actions**。也可在 Actions 页手动 `Run workflow` 重新部署。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
 
 ## 许可
 
