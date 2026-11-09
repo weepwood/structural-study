@@ -179,7 +179,7 @@ git push origin main            # Actions 自动重新部署 Pages
 
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`），`github-pages` 环境的 branch policy 允许 `main`。也可在 Actions 页手动 `Run workflow`（或 `gh workflow run deploy-pages.yml`）重新部署 —— 若某次 push 触发的 run 因平台抖动未启动 deploy 阶段，手动触发一次即可补齐。
 
 ## 许可
 
