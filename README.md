@@ -6,6 +6,8 @@
 
 中心是一颗经纬线线框球，外面套三个倾角各异、反向自转的刻度环。整张「图纸」由代码逐帧绘制：正交投影、工程制图三线型、爆炸拆解、剖切扫描、引线编号、尺寸标注、标题栏与三种纸张主题。视觉语言受 hacktron.ai 的工程制图标注启发，但**几何、渲染与交互均为原创实现，不含任何第三方素材或运行时依赖**。
 
+这套设计语言已封装为可复用的 WorkBuddy 技能包 `orthographic-blueprint`，随本项目一同发布：[在线说明与下载](https://weepwood.github.io/structural-study/skill.html) · [仓库内文档](skill.html)。
+
 ---
 
 ## 特性
@@ -29,7 +31,7 @@
 # 方式二：本地静态服务
 npm run serve          # http://127.0.0.1:4173/
 # 方式三：校验
-npm run verify         # 27 项结构 / 语法 / 安全自检，无需 npm install
+npm run verify         # 结构 / 语法 / 安全 / 技能包自检，无需 npm install
 ```
 
 `serve.mjs` 与 `verify.mjs` 只用 Node 内置模块，**不需要安装任何依赖**。
@@ -88,18 +90,60 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 ```
 .
 ├── index.html                        # 交付成品：单文件零依赖
+├── skill.html                        # 设计技能包说明页（Pages 可访问）
+├── skills/
+│   ├── orthographic-blueprint.zip    # 可直接安装的技能包
+│   └── orthographic-blueprint/       # 技能源码
+│       ├── SKILL.md                  # 触发条件 / 设计契约 / 工作流
+│       ├── references/               # 视觉规范 + 实现参考
+│       ├── assets/drawing-template.html  # 完整可运行的单文件模板
+│       └── scripts/                  # scaffold / check / install（零依赖）
 ├── package.json                      # verify / serve 脚本（无依赖）
 ├── scripts/
-│   ├── verify.mjs                    # 结构、语法、资源、密钥自检
+│   ├── verify.mjs                    # 结构、语法、资源、密钥、技能包自检
 │   └── serve.mjs                     # Node 内置静态服务器
 ├── .github/workflows/deploy-pages.yml# GitHub Actions → GitHub Pages
 ├── LICENSE                           # MIT
 └── README.md
 ```
 
+## 设计技能包（WorkBuddy Skill）
+
+把本项目的视觉语言封装成了可复用技能 **`orthographic-blueprint`**：以后说「用这种工程图纸风格做一个 X」，就能按同一套规范生成新的交互式制图，而不是从零重写。
+
+**在线说明与下载**：<https://weepwood.github.io/structural-study/skill.html>
+
+| | |
+|---|---|
+| 技能内容 | 八条设计契约（正交投影、三线型、纸色遮挡、四层顺序、三主题、零依赖…）、六步工作流、验收清单 |
+| 规范文档 | 配色 / 线宽 / 虚线 / 图层 / 标注 / 动效数值；旋转矩阵、深度判据、剖切求交、入场动画双进度与常见坑 |
+| 可直接运行的模板 | `assets/drawing-template.html`，三主题、爆炸、剖切、拾取、PNG、URL 状态、降级全部内置 |
+| 工具脚本 | `scaffold.mjs` 生成新作品、`check-drawing.mjs` 39 项自检、`install.mjs` 安装到技能目录 |
+
+**安装**（任选其一）：
+
+```bash
+# A. 解压 skills/orthographic-blueprint.zip 到 ~/.workbuddy/skills/
+# B. 复制到项目的 .workbuddy/skills/（随团队共享）
+# C. 脚本安装，零依赖
+node skills/orthographic-blueprint/scripts/install.mjs               # 用户级
+node skills/orthographic-blueprint/scripts/install.mjs --project .   # 项目级
+```
+
+**使用**：
+
+```bash
+node skills/orthographic-blueprint/scripts/scaffold.mjs \
+  --out ./drawing.html --title "STRUCTURE 02" --subject "TRUSS ASSEMBLY" --code 02
+# 改 PARTS 与 buildPart()（模板内标有 // REPLACE: GEOMETRY）
+node skills/orthographic-blueprint/scripts/check-drawing.mjs ./drawing.html
+```
+
+模板与说明页均随 Pages 发布，可在浏览器里直接体验模板、下载 ZIP 或阅读 `SKILL.md`。技能包与项目同为 MIT 许可。
+
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html` 与 `skills/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
 
 ## 许可
 

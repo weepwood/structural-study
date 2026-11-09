@@ -32,7 +32,8 @@ jobs:
       - name: Build Pages artifact
         run: |
           mkdir -p _site
-          cp index.html _site/index.html
+          cp index.html skill.html _site/
+          cp -r skills _site/skills
           touch _site/.nojekyll
 
       - name: Configure Pages

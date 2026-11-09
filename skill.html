@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ORTHOGRAPHIC BLUEPRINT — WorkBuddy Skill / 设计技能包</title>
+<meta name="description" content="A reusable WorkBuddy skill that turns any subject into an interactive single-file orthographic engineering drawing.">
+<meta name="theme-color" content="#f0ebe4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%23f0ebe4'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='17'%20fill='none'%20stroke='%23211e1a'%20stroke-width='2'/%3E%3Cellipse%20cx='32'%20cy='32'%20rx='27'%20ry='9'%20fill='none'%20stroke='%23b23d22'%20stroke-width='2'%20transform='rotate(-28%2032%2032)'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f0ebe4; --ink:#211e1a; --surface:#ece6de; --faint:rgba(33,30,26,.13);
+  --grid:rgba(33,30,26,.055); --accent:#b23d22;
+  --line:rgba(33,30,26,.30); --soft:rgba(33,30,26,.62); --panel:rgba(240,235,228,.94);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#171512; --ink:#e9e3d8; --surface:#1e1b17; --faint:rgba(233,227,216,.14);
+    --grid:rgba(233,227,216,.06); --accent:#e87048;
+    --line:rgba(233,227,216,.30); --soft:rgba(233,227,216,.62); --panel:rgba(23,21,18,.94);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  font-size:13px;line-height:1.85;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)}
+a:hover{border-bottom-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:900px;margin:0 auto;padding:0 26px 100px}
+.frame{position:fixed;inset:16px;border:1px solid var(--line);pointer-events:none;z-index:9}
+.frame:before,.frame:after{content:"";position:absolute;width:22px;height:22px;border:1px solid var(--accent)}
+.frame:before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.frame:after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+header{padding:64px 0 30px;border-bottom:1px solid var(--line);margin-bottom:34px;position:relative}
+.eyebrow{font-size:10px;letter-spacing:.3em;color:var(--soft);text-transform:uppercase}
+h1{font-size:clamp(24px,4.2vw,40px);line-height:1.25;letter-spacing:.06em;margin:16px 0 14px;font-weight:600}
+.sub{font-size:12px;color:var(--soft);letter-spacing:.1em;max-width:620px}
+.stamp{position:absolute;right:8px;top:70px;border:1px solid var(--accent);color:var(--accent);
+  font-size:10px;letter-spacing:.22em;padding:7px 12px;transform:rotate(-6deg);opacity:.85}
+@media(max-width:640px){.stamp{display:none}}
+h2{font-size:14px;letter-spacing:.18em;margin:44px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line);font-weight:600}
+h2 em{font-style:normal;color:var(--accent);margin-right:10px}
+p{margin:0 0 14px;color:var(--soft)}
+p strong{color:var(--ink);font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 8px}
+.btn{display:inline-block;border:1px solid var(--line);padding:11px 18px;font-size:11px;letter-spacing:.14em;
+  color:var(--ink);background:var(--panel);transition:border-color .18s,color .18s,transform .18s}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.btn.primary{border-color:var(--accent);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin:18px 0}
+.card{border:1px solid var(--line);background:var(--panel);padding:16px 18px}
+.card b{display:block;font-size:11px;letter-spacing:.16em;margin-bottom:8px;color:var(--ink)}
+.card span{font-size:11px;color:var(--soft);line-height:1.7}
+ol,ul{margin:0 0 16px;padding-left:22px;color:var(--soft)}
+li{margin-bottom:7px}
+li strong{color:var(--ink)}
+code{font-family:inherit;font-size:11px;background:var(--surface);border:1px solid var(--faint);padding:1px 5px;color:var(--ink)}
+pre{background:var(--surface);border:1px solid var(--line);padding:16px 18px;overflow-x:auto;
+  font-size:11px;line-height:1.75;color:var(--ink);margin:0 0 18px}
+pre code{background:none;border:0;padding:0}
+table{width:100%;border-collapse:collapse;font-size:11px;margin:0 0 18px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink);letter-spacing:.12em;font-weight:600;white-space:nowrap}
+td{color:var(--soft)}
+td code{font-size:10px}
+.note{border-left:2px solid var(--accent);padding:10px 16px;margin:18px 0;background:var(--panel);font-size:11px;color:var(--soft)}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.14em;color:var(--soft);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+<div class="frame"></div>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">STRUCTURE 01 &nbsp;/&nbsp; DESIGN SYSTEM EXPORT</div>
+  <h1>ORTHOGRAPHIC<br>BLUEPRINT SKILL</h1>
+  <div class="sub">把本站的视觉语言封装成可复用的 WorkBuddy 技能：正交投影线稿、制图三线型、爆炸拆解、剖切扫描、三主题与单文件零依赖交付。</div>
+  <div class="stamp">REUSABLE</div>
+</header>
+
+<div class="cta">
+  <a class="btn primary" href="./skills/orthographic-blueprint.zip">↓ 下载技能包 ZIP</a>
+  <a class="btn" href="./skills/orthographic-blueprint/assets/drawing-template.html">▶ 在线体验模板</a>
+  <a class="btn" href="./skills/orthographic-blueprint/SKILL.md">阅读 SKILL.md</a>
+  <a class="btn" href="./index.html">← 返回图纸</a>
+</div>
+<p>技能源码同步发布在本仓库 <code>skills/orthographic-blueprint/</code>，MIT 许可，可直接复制、修改或随项目分发。</p>
+
+<h2><em>01</em> 它能做什么</h2>
+<p>说出「<strong>用这种工程图纸风格做一个 X</strong>」，技能会引导生成一张可交互的正交制图：把主体拆成带编号与规格的零件，用 Canvas 2D 手绘全部线条，产出一个 <strong>零依赖、可离线、可分享 URL 状态</strong> 的 HTML 文件。</p>
+<div class="grid">
+  <div class="card"><b>视觉契约</b><span>正交投影无透视除法；可见实线 / 隐藏虚线 / 中心线点划线；纸色擦除做实体遮挡。</span></div>
+  <div class="card"><b>图纸语义</b><span>零件编号、尺寸公差、比例、投影方式、实时坐标与角度、剖切标记、标题栏与图号。</span></div>
+  <div class="card"><b>交互机制</b><span>拖拽惯性、鼠标视差、滚轮拆解、Shift 缩放、点击拾取、爆炸与剖切、三主题切换。</span></div>
+  <div class="card"><b>工程质量</b><span>单文件零请求、reduced-motion、后台停绘、Canvas 降级、PNG 导出、调试 API、自检脚本。</span></div>
+</div>
+
+<h2><em>02</em> 安装</h2>
+<p><strong>方式 A — 解压即用（用户级，跨项目可用）</strong>：下载 ZIP，解压到 <code>~/.workbuddy/skills/orthographic-blueprint/</code>，重新加载技能即可。</p>
+<p><strong>方式 B — 项目级</strong>：把整个目录复制进项目的 <code>.workbuddy/skills/</code>，随仓库共享给协作者。</p>
+<p><strong>方式 C — 脚本安装</strong>：在本仓库克隆后运行</p>
+<pre><code>node skills/orthographic-blueprint/scripts/install.mjs                 # 用户级
+node skills/orthographic-blueprint/scripts/install.mjs --project .      # 项目级
+node skills/orthographic-blueprint/scripts/install.mjs --force         # 覆盖已有安装</code></pre>
+<div class="note">安装脚本与自检脚本都只用 Node 内置模块，<strong>不需要 npm install</strong>。技能清单含 <code>agent_created: true</code>，可被后续编辑与管理。</div>
+
+<h2><em>03</em> 使用流程</h2>
+<ol>
+  <li>确定主体与 3–6 个零件的编号、几何参数、规格文本。</li>
+  <li>用 <code>scaffold.mjs</code> 从模板生成新 HTML，替换标题与图号。</li>
+  <li>改 <code>PARTS</code> 与 <code>buildPart()</code>（模板中标有 <code>// REPLACE: GEOMETRY</code>），其余绘制层保持不动。</li>
+  <li>运行 <code>check-drawing.mjs</code> 自检，再用无头浏览器截取默认 / 深色 / 爆炸三态核对布局。</li>
+  <li>交付单文件，附带可分享的 URL 状态，例如 <code>?theme=cyan&amp;explode=45&amp;part=R-03</code>。</li>
+</ol>
+<pre><code>node skills/orthographic-blueprint/scripts/scaffold.mjs \
+  --out ./drawing.html --title "STRUCTURE 02" --subject "TRUSS ASSEMBLY" --code 02
+
+node skills/orthographic-blueprint/scripts/check-drawing.mjs ./drawing.html</code></pre>
+
+<h2><em>04</em> 包内资源</h2>
+<table>
+  <tr><th>路径</th><th>用途</th></tr>
+  <tr><td><code>SKILL.md</code></td><td>触发条件、八条设计契约、六步工作流与验收清单</td></tr>
+  <tr><td><code>references/design-language.md</code></td><td>配色表、线宽与虚线表、图层顺序、标注排版、动效数值、反模式</td></tr>
+  <tr><td><code>references/implementation.md</code></td><td>旋转矩阵、深度判据、evenodd 擦除、剖切求交、入场动画双进度、常见坑</td></tr>
+  <tr><td><code>assets/drawing-template.html</code></td><td>完整可运行的单文件模板，所有设计契约已实现</td></tr>
+  <tr><td><code>scripts/scaffold.mjs</code></td><td>生成新项目骨架</td></tr>
+  <tr><td><code>scripts/check-drawing.mjs</code></td><td>39 项成品自检</td></tr>
+  <tr><td><code>scripts/install.mjs</code></td><td>安装到用户级 / 项目级技能目录</td></tr>
+</table>
+
+<h2><em>05</em> 触发词</h2>
+<p>工程制图风格 · 蓝图 / 蓝晒 · blueprint · 正交线稿 · 结构图 · 图纸风 · 线框机械感 · hacktron 风格可视化 · 需要零件编号 / 尺寸标注 / 爆炸视图的交互式结构展示。</p>
+
+<footer>
+  <span>STRUCTURE 01 / SKILL PACKAGE · REV A</span>
+  <span><a href="https://github.com/weepwood/structural-study">GitHub 仓库 ↗</a></span>
+</footer>
+
+</div>
+</body>
+</html>
