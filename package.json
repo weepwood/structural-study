@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "verify": "node scripts/verify.mjs",
+    "tokens": "node scripts/build-tokens.mjs",
     "serve": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs"
   },

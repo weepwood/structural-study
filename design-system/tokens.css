@@ -1,0 +1,137 @@
+/* Orthographic Blueprint Design System — v1.0.0 REV A */
+/* Generated from design-system/tokens.json by scripts/build-tokens.mjs — DO NOT EDIT. */
+/* Three themes share identical structure; only color tokens change. */
+
+/* PAPER — 米白图纸 */
+:root, [data-theme="paper"] {
+  --bg: #f0ebe4;
+  --ink: #211e1a;
+  --surface: #ece6de;
+  --faint: rgba(33,30,26,.13);
+  --grid: rgba(33,30,26,.055);
+  --hidden: rgba(33,30,26,.30);
+  --accent: #b23d22;
+  --panel: rgba(240,235,228,.94);
+  --line: rgba(33,30,26,.30);
+  --soft: rgba(33,30,26,.55);
+}
+
+/* INK — 墨黑反转 */
+[data-theme="ink"] {
+  --bg: #171512;
+  --ink: #e9e3d8;
+  --surface: #1e1b17;
+  --faint: rgba(233,227,216,.14);
+  --grid: rgba(233,227,216,.06);
+  --hidden: rgba(233,227,216,.28);
+  --accent: #e87048;
+  --panel: rgba(23,21,18,.94);
+  --line: rgba(233,227,216,.30);
+  --soft: rgba(233,227,216,.58);
+}
+
+/* CYANOTYPE — 蓝晒 */
+[data-theme="cyan"] {
+  --bg: #0f2b52;
+  --ink: #e2edf8;
+  --surface: #14325e;
+  --faint: rgba(226,237,248,.16);
+  --grid: rgba(226,237,248,.075);
+  --hidden: rgba(226,237,248,.32);
+  --accent: #ffcb63;
+  --panel: rgba(15,43,82,.95);
+  --line: rgba(226,237,248,.32);
+  --soft: rgba(226,237,248,.62);
+}
+
+/* Theme-independent primitives (Canvas values mirrored for CSS consumers) */
+:root {
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* type scale */
+  --fs-header: 12px;
+  --fs-header-sub: 9px;
+  --fs-readout: 10px;
+  --fs-readout-small: 9px;
+  --fs-dimension: 10px;
+  --fs-leader: 9.5px;
+  --fs-leader-sub: 8.5px;
+  --fs-title-block: 10px;
+  --fs-title-block-small: 8.5px;
+  --fs-hint: 9.5px;
+  --fs-canvas-label: 9px;
+  --fs-panel: 10px;
+  --fs-panel-small: 9px;
+  --fs-toggle: 10px;
+  --fs-button: 9px;
+  --fs-doc-body: 13px;
+  --fs-doc-heading: 40px;
+  /* tracking — canvas* values are px equivalents of the Canvas sp parameter */
+  --track-canvas-wide: 1.4px;
+  --track-canvas-normal: 1.1px;
+  --track-canvas-tight: 0.8px;
+  --track-canvas-micro: 0.7px;
+  --track-panel: 0.06em;
+  --track-panel-head: 0.16em;
+  --track-eyebrow: 0.3em;
+  /* weight */
+  --fw-regular: 400;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  /* linework */
+  --lw-bold: 1.55;
+  --lw-solid: 1.05;
+  --lw-hidden: 0.85;
+  --dash-hidden: 4, 4;
+  --lw-faint: 0.8;
+  --lw-center: 1;
+  --dash-center: 12, 4, 2, 4;
+  --lw-guide: 0.8;
+  --dash-guide: 9, 4, 2, 4;
+  --lw-section: 1.3;
+  --dash-section: 9, 4, 2, 4;
+  --lw-section-hit: 1.4;
+  --lw-frame: 1;
+  --lw-corner: 1.2;
+  --lw-dimension: 0.9;
+  --lw-leader: 0.8;
+  /* space */
+  --sp-grid: 24px;
+  --sp-major-grid: 120px;
+  --sp-frame-inset: 16px;
+  --sp-corner-mark-short: 7px;
+  --sp-corner-mark-long: 22px;
+  --sp-hatch-step: 13px;
+  --sp-header-x: 30px;
+  --sp-header-y: 36px;
+  --sp-header-rule-y: 50px;
+  --sp-panel-right: 22px;
+  --sp-panel-bottom: 22px;
+  --sp-panel-width: 252px;
+  --sp-panel-width-mobile: 210px;
+  --sp-panel-folded-width: 150px;
+  --sp-panel-padding: 11px;
+  --sp-title-block-width: 246px;
+  --sp-title-block-height: 72px;
+  --sp-label-plate-width: 186px;
+  --sp-label-plate-height: 30px;
+  --sp-leader-min-gap: 50px;
+  --sp-leader-right-inset: 300px;
+  --sp-pick-radius: 13px;
+  --sp-dpr-max: 2;
+  /* breakpoints */
+  --bp-mobile: 720px;
+  --bp-doc: 640px;
+  /* motion */
+  --mo-follow-yaw: 0.16;
+  --mo-follow-pitch: 0.11;
+  --mo-parallax-ease: 0.06;
+  --mo-drag-speed: 0.006;
+  --mo-inertia: 0.93;
+  --mo-auto-spin: 0.0016;
+  --mo-intro-ms: 1900ms;
+  --mo-intro-frames: 100;
+  --mo-wheel-explode: 0.0006;
+  --mo-wheel-zoom: 0.0008;
+  --mo-panel-transition: 0.18s;
+}

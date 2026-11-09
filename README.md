@@ -6,7 +6,7 @@
 
 中心是一颗经纬线线框球，外面套三个倾角各异、反向自转的刻度环。整张「图纸」由代码逐帧绘制：正交投影、工程制图三线型、爆炸拆解、剖切扫描、引线编号、尺寸标注、标题栏与三种纸张主题。视觉语言受 hacktron.ai 的工程制图标注启发，但**几何、渲染与交互均为原创实现，不含任何第三方素材或运行时依赖**。
 
-这套设计语言已封装为可复用的 WorkBuddy 技能包 `orthographic-blueprint`，随本项目一同发布：[在线说明与下载](https://weepwood.github.io/structural-study/skill.html) · [仓库内文档](skill.html)。
+这套设计语言已沉淀为完整设计系统：[design.md](design.md)（总纲）· [在线设计系统](https://weepwood.github.io/structural-study/design-system/)（三主题 / 色板 / 组件 / 令牌表）· [tokens.json](design-system/tokens.json)（机器可读唯一数值源）；并封装为可复用的 WorkBuddy 技能包 `orthographic-blueprint`：[在线说明与下载](https://weepwood.github.io/structural-study/skill.html) · [仓库内文档](skill.html)。
 
 ---
 
@@ -31,10 +31,12 @@
 # 方式二：本地静态服务
 npm run serve          # http://127.0.0.1:4173/
 # 方式三：校验
-npm run verify         # 结构 / 语法 / 安全 / 技能包自检，无需 npm install
+npm run verify         # 55 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
+# 方式四：改设计令牌后重新生成产物
+npm run tokens         # tokens.json → tokens.css + 设计系统页生成块
 ```
 
-`serve.mjs` 与 `verify.mjs` 只用 Node 内置模块，**不需要安装任何依赖**。
+`serve.mjs`、`verify.mjs` 与 `tokens.mjs` 只用 Node 内置模块，**不需要安装任何依赖**。
 
 ## 交互
 
@@ -90,6 +92,11 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 ```
 .
 ├── index.html                        # 交付成品：单文件零依赖
+├── design.md                         # 设计系统总纲：原则 / 令牌 / 组件 / 验收
+├── design-system/
+│   ├── tokens.json                   # 唯一数值源（机器可读）
+│   ├── tokens.css                    # 生成物：独立样式表
+│   └── index.html                    # 可视化设计系统（单文件零依赖）
 ├── skill.html                        # 设计技能包说明页（Pages 可访问）
 ├── skills/
 │   ├── orthographic-blueprint.zip    # 可直接安装的技能包
@@ -100,7 +107,9 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 │       └── scripts/                  # scaffold / check / install（零依赖）
 ├── package.json                      # verify / serve 脚本（无依赖）
 ├── scripts/
-│   ├── verify.mjs                    # 结构、语法、资源、密钥、技能包自检
+│   ├── tokens.mjs                    # 令牌生成逻辑（纯函数，verify 复用）
+│   ├── build-tokens.mjs              # 重新生成 tokens.css 与页面生成块
+│   ├── verify.mjs                    # 55 项自检（含生成物一致性）
 │   └── serve.mjs                     # Node 内置静态服务器
 ├── .github/workflows/deploy-pages.yml# GitHub Actions → GitHub Pages
 ├── LICENSE                           # MIT
@@ -141,9 +150,36 @@ node skills/orthographic-blueprint/scripts/check-drawing.mjs ./drawing.html
 
 模板与说明页均随 Pages 发布，可在浏览器里直接体验模板、下载 ZIP 或阅读 `SKILL.md`。技能包与项目同为 MIT 许可。
 
+## 设计系统
+
+**在线**：<https://weepwood.github.io/structural-study/design-system/> · **总纲**：[design.md](design.md) · **数值源**：[tokens.json](design-system/tokens.json) · **样式表**：[tokens.css](design-system/tokens.css)
+
+在线页面可直接切换 PAPER / INK / CYANOTYPE 三主题，浏览色板、字阶、12 种线型、10 个组件、间距尺、动效参数与全部 CSS 变量，点击任意色值或变量名即可复制。
+
+| 层 | 文件 | 说明 |
+|---|---|---|
+| 规则 | `design.md` | 六条原则、色彩 / 排版 / 线型 / 空间 / 组件 / 动效 / 可访问性 / 变更与验收 |
+| 唯一数值源 | `design-system/tokens.json` | 10 个语义颜色角色 × 3 主题、17 级字阶、12 种线型、24 项空间与 13 项动效参数 |
+| 产物 | `design-system/tokens.css` | 90 个 CSS 变量，可 `<link>` 引入配套页面；成品 `index.html` 仍内联不引用 |
+| 产物 | `design-system/index.html` | 单文件零依赖的可视化设计系统，生成块由脚本注入 |
+| 守门 | `scripts/tokens.mjs` + `verify.mjs` | 比对生成物与数值源，并抽查成品内联色值不漂移 |
+
+三主题对比度（WCAG 2.1）：主墨线对纸面 **11.90–14.27:1（AAA）**，强调色 **4.94–9.39:1（AA 以上）**；PAPER 的次级文字 3.58:1 仅达大字号 AA，规范中明确限制其不得承载关键信息。
+
+**改一个颜色的正确流程**：
+
+```bash
+vim design-system/tokens.json   # 只改数值源
+npm run tokens                  # 重生成 tokens.css 与页面生成块
+npm run verify                  # 55 项自检，含生成物一致性
+git push origin main            # Actions 自动重新部署 Pages
+```
+
+`design.md` 与技能包 `references/design-language.md` 的表格需同步更新，避免数值漂移。
+
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html` 与 `skills/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`）。也可在 Actions 页手动 `Run workflow` 重新部署。
 
 ## 许可
 

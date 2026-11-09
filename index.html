@@ -93,6 +93,7 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
 .skill a{display:block;text-align:center;padding:6px 4px;font-size:9px;letter-spacing:.1em;
   color:var(--soft);text-decoration:none;border:1px dashed var(--line)}
 .skill a:hover{color:var(--accent);border-color:var(--accent)}
+.skill a + a{margin-top:5px}
 @media (max-width:720px){
   .panel{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:210px;font-size:9px}
 }
@@ -128,7 +129,10 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
       <div class="spec-empty" id="specEmpty">点击线段选取零件 · 查看规格<br>DRAG 旋转 / WHEEL 拆解 / T 切主题</div>
       <div class="spec-rows" id="specRows" style="display:none"></div>
     </div>
-    <div class="skill"><a href="./skill.html" title="获取可复用的设计技能包">SKILL / 设计技能包 ↗</a></div>
+    <div class="skill">
+      <a href="./skill.html" title="获取可复用的设计技能包">SKILL / 设计技能包 ↗</a>
+      <a href="./design-system/" title="查看本图纸的设计系统与全部设计令牌">DESIGN / 设计系统 ↗</a>
+    </div>
   </div>
 </div>
 

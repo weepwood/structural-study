@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ORTHOGRAPHIC BLUEPRINT — Design System REV A</title>
+<meta name="description" content="The design system behind STRUCTURE 01: color, typography, linework, spacing, motion and component tokens for orthographic blueprint interfaces. Single file, zero dependencies.">
+<meta name="author" content="weepwood">
+<meta name="theme-color" content="#f0ebe4">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Orthographic Blueprint — Design System">
+<meta property="og:description" content="图纸风格设计系统：三主题、三线型、组件与动效令牌。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%23f0ebe4'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='17'%20fill='none'%20stroke='%23211e1a'%20stroke-width='2'/%3E%3Cellipse%20cx='32'%20cy='32'%20rx='27'%20ry='9'%20fill='none'%20stroke='%23b23d22'%20stroke-width='2'%20transform='rotate(-28%2032%2032)'/%3E%3C/svg%3E">
+
+<!-- Generated from design-system/tokens.json. Never edit between the markers. -->
+<style id="token-sheet">
+/* BEGIN GENERATED CSS */
+/* Orthographic Blueprint Design System — v1.0.0 REV A */
+/* Generated from design-system/tokens.json by scripts/build-tokens.mjs — DO NOT EDIT. */
+/* Three themes share identical structure; only color tokens change. */
+
+/* PAPER — 米白图纸 */
+:root, [data-theme="paper"] {
+  --bg: #f0ebe4;
+  --ink: #211e1a;
+  --surface: #ece6de;
+  --faint: rgba(33,30,26,.13);
+  --grid: rgba(33,30,26,.055);
+  --hidden: rgba(33,30,26,.30);
+  --accent: #b23d22;
+  --panel: rgba(240,235,228,.94);
+  --line: rgba(33,30,26,.30);
+  --soft: rgba(33,30,26,.55);
+}
+
+/* INK — 墨黑反转 */
+[data-theme="ink"] {
+  --bg: #171512;
+  --ink: #e9e3d8;
+  --surface: #1e1b17;
+  --faint: rgba(233,227,216,.14);
+  --grid: rgba(233,227,216,.06);
+  --hidden: rgba(233,227,216,.28);
+  --accent: #e87048;
+  --panel: rgba(23,21,18,.94);
+  --line: rgba(233,227,216,.30);
+  --soft: rgba(233,227,216,.58);
+}
+
+/* CYANOTYPE — 蓝晒 */
+[data-theme="cyan"] {
+  --bg: #0f2b52;
+  --ink: #e2edf8;
+  --surface: #14325e;
+  --faint: rgba(226,237,248,.16);
+  --grid: rgba(226,237,248,.075);
+  --hidden: rgba(226,237,248,.32);
+  --accent: #ffcb63;
+  --panel: rgba(15,43,82,.95);
+  --line: rgba(226,237,248,.32);
+  --soft: rgba(226,237,248,.62);
+}
+
+/* Theme-independent primitives (Canvas values mirrored for CSS consumers) */
+:root {
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* type scale */
+  --fs-header: 12px;
+  --fs-header-sub: 9px;
+  --fs-readout: 10px;
+  --fs-readout-small: 9px;
+  --fs-dimension: 10px;
+  --fs-leader: 9.5px;
+  --fs-leader-sub: 8.5px;
+  --fs-title-block: 10px;
+  --fs-title-block-small: 8.5px;
+  --fs-hint: 9.5px;
+  --fs-canvas-label: 9px;
+  --fs-panel: 10px;
+  --fs-panel-small: 9px;
+  --fs-toggle: 10px;
+  --fs-button: 9px;
+  --fs-doc-body: 13px;
+  --fs-doc-heading: 40px;
+  /* tracking — canvas* values are px equivalents of the Canvas sp parameter */
+  --track-canvas-wide: 1.4px;
+  --track-canvas-normal: 1.1px;
+  --track-canvas-tight: 0.8px;
+  --track-canvas-micro: 0.7px;
+  --track-panel: 0.06em;
+  --track-panel-head: 0.16em;
+  --track-eyebrow: 0.3em;
+  /* weight */
+  --fw-regular: 400;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  /* linework */
+  --lw-bold: 1.55;
+  --lw-solid: 1.05;
+  --lw-hidden: 0.85;
+  --dash-hidden: 4, 4;
+  --lw-faint: 0.8;
+  --lw-center: 1;
+  --dash-center: 12, 4, 2, 4;
+  --lw-guide: 0.8;
+  --dash-guide: 9, 4, 2, 4;
+  --lw-section: 1.3;
+  --dash-section: 9, 4, 2, 4;
+  --lw-section-hit: 1.4;
+  --lw-frame: 1;
+  --lw-corner: 1.2;
+  --lw-dimension: 0.9;
+  --lw-leader: 0.8;
+  /* space */
+  --sp-grid: 24px;
+  --sp-major-grid: 120px;
+  --sp-frame-inset: 16px;
+  --sp-corner-mark-short: 7px;
+  --sp-corner-mark-long: 22px;
+  --sp-hatch-step: 13px;
+  --sp-header-x: 30px;
+  --sp-header-y: 36px;
+  --sp-header-rule-y: 50px;
+  --sp-panel-right: 22px;
+  --sp-panel-bottom: 22px;
+  --sp-panel-width: 252px;
+  --sp-panel-width-mobile: 210px;
+  --sp-panel-folded-width: 150px;
+  --sp-panel-padding: 11px;
+  --sp-title-block-width: 246px;
+  --sp-title-block-height: 72px;
+  --sp-label-plate-width: 186px;
+  --sp-label-plate-height: 30px;
+  --sp-leader-min-gap: 50px;
+  --sp-leader-right-inset: 300px;
+  --sp-pick-radius: 13px;
+  --sp-dpr-max: 2;
+  /* breakpoints */
+  --bp-mobile: 720px;
+  --bp-doc: 640px;
+  /* motion */
+  --mo-follow-yaw: 0.16;
+  --mo-follow-pitch: 0.11;
+  --mo-parallax-ease: 0.06;
+  --mo-drag-speed: 0.006;
+  --mo-inertia: 0.93;
+  --mo-auto-spin: 0.0016;
+  --mo-intro-ms: 1900ms;
+  --mo-intro-frames: 100;
+  --mo-wheel-explode: 0.0006;
+  --mo-wheel-zoom: 0.0008;
+  --mo-panel-transition: 0.18s;
+}
+/* END GENERATED CSS */
+</style>
+
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-mono);font-size:var(--fs-doc-body);line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--sp-grid) var(--sp-grid)}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)}
+a:hover{border-bottom-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+code{font-family:inherit;font-size:11px;background:var(--surface);border:1px solid var(--faint);padding:1px 5px;color:var(--ink)}
+pre{background:var(--surface);border:1px solid var(--line);padding:16px 18px;overflow-x:auto;font-size:11px;line-height:1.8;margin:0 0 18px}
+pre code{background:none;border:0;padding:0}
+.frame{position:fixed;inset:var(--sp-frame-inset);border:1px solid var(--line);pointer-events:none;z-index:9}
+.frame:before,.frame:after{content:"";position:absolute;width:22px;height:22px;border:1px solid var(--accent)}
+.frame:before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.frame:after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.wrap{max-width:1040px;margin:0 auto;padding:0 32px 110px}
+.eyebrow{font-size:10px;letter-spacing:var(--track-eyebrow);color:var(--soft);text-transform:uppercase}
+header{padding:70px 0 26px;border-bottom:1px solid var(--line);position:relative}
+h1{font-size:clamp(26px,4.6vw,var(--fs-doc-heading));line-height:1.18;letter-spacing:var(--track-panel-head);margin:18px 0 14px;font-weight:var(--fw-semibold)}
+.sub{font-size:12px;color:var(--soft);letter-spacing:.08em;max-width:660px;line-height:1.9}
+.stamp{position:absolute;right:6px;top:76px;border:1px solid var(--accent);color:var(--accent);
+  font-size:10px;letter-spacing:.22em;padding:7px 12px;transform:rotate(-6deg);opacity:.85}
+@media(max-width:640px){.stamp{display:none}}
+.themes{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:24px 0 20px}
+.themes .lbl{font-size:10px;letter-spacing:.18em;color:var(--soft);margin-right:8px}
+.tsw{font:inherit;font-size:10px;letter-spacing:.12em;padding:7px 13px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--soft);
+  transition:border-color var(--mo-panel-transition),color var(--mo-panel-transition),transform var(--mo-panel-transition)}
+.tsw:hover{color:var(--ink);transform:translateY(-2px)}
+.tsw[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 0}
+.btn{display:inline-block;border:1px solid var(--line);padding:10px 17px;font-size:11px;letter-spacing:.12em;
+  color:var(--ink);background:var(--panel);cursor:pointer;font-family:inherit;
+  transition:border-color var(--mo-panel-transition),color var(--mo-panel-transition),transform var(--mo-panel-transition)}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.btn.primary{border-color:var(--accent);color:var(--accent)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 18px;padding:16px 0;border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:8;background:var(--panel);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+nav.toc a{font-size:10px;letter-spacing:.1em;color:var(--soft);border:0;text-transform:uppercase}
+nav.toc a:hover{color:var(--accent)}
+nav.toc a b{color:var(--accent);font-weight:var(--fw-regular);margin-right:5px}
+section{padding-top:52px}
+h2{font-size:14px;letter-spacing:.18em;margin:0 0 8px;padding-bottom:10px;border-bottom:1px solid var(--line);font-weight:var(--fw-semibold)}
+h2 em{font-style:normal;color:var(--accent);margin-right:12px}
+h3{font-size:11px;letter-spacing:.16em;margin:30px 0 12px;font-weight:var(--fw-semibold);color:var(--ink)}
+.lead{font-size:12px;color:var(--soft);margin:14px 0 22px;max-width:760px;line-height:1.95}
+p{color:var(--soft);font-size:12px;margin:0 0 14px}
+p strong,li strong{color:var(--ink);font-weight:var(--fw-semibold)}
+ul,ol{padding-left:22px;color:var(--soft);font-size:12px;line-height:1.95}
+li{margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:18px 0 24px}
+.card{border:1px solid var(--line);background:var(--panel);padding:16px 18px}
+.card b{display:block;font-size:11px;letter-spacing:.16em;margin-bottom:8px;color:var(--ink);font-weight:var(--fw-semibold)}
+.card span{font-size:11px;color:var(--soft);line-height:1.8;display:block}
+.note{border-left:2px solid var(--accent);padding:10px 16px;margin:18px 0;background:var(--panel);font-size:11px;color:var(--soft);line-height:1.8}
+table{width:100%;border-collapse:collapse;font-size:11px;margin:0 0 20px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink);letter-spacing:.12em;font-weight:var(--fw-semibold);white-space:nowrap}
+td{color:var(--soft)}
+td code{font-size:10px}
+.scroll{overflow-x:auto}
+/* 01 color */
+.swatch{display:flex;align-items:center;gap:9px;background:none;border:0;padding:0;
+  font:inherit;color:var(--ink);cursor:pointer;text-align:left;width:100%}
+.swatch:hover code{border-color:var(--accent)}
+.chip{width:22px;height:22px;flex:none;border:1px solid var(--line);display:block}
+.swatch code{font-size:10px;background:none;border:1px solid transparent;padding:2px 3px;white-space:nowrap}
+.badge{display:inline-block;font-size:9px;letter-spacing:.08em;padding:1px 6px;border:1px solid var(--line);color:var(--soft)}
+.badge.aaa{border-color:var(--accent);color:var(--accent)}
+.badge.warn{border-style:dashed}
+/* 02 type */
+.typerow{display:flex;align-items:baseline;gap:16px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.typerow .tag{width:150px;flex:none;font-size:10px;letter-spacing:.1em;color:var(--soft)}
+.typerow .val{width:80px;flex:none;font-size:10px;color:var(--accent)}
+.typerow .sample{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.1em}
+.tracks{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:16px}
+.tracks div{font-size:10px;color:var(--soft)}
+.tracks b{display:block;color:var(--ink);font-weight:var(--fw-regular);margin-top:4px;letter-spacing:var(--track-eyebrow)}
+/* 03 linework */
+.linerow{display:grid;grid-template-columns:150px 1fr 88px;gap:14px;align-items:center;
+  padding:7px 0;border-bottom:1px dashed var(--line)}
+.linerow .nm{font-size:10px;color:var(--ink);letter-spacing:.06em}
+.linerow .meta{font-size:10px;color:var(--soft);text-align:right;white-space:nowrap}
+.linerow svg{width:100%;height:20px;display:block;overflow:visible}
+/* 04 components */
+.preview{border:1px solid var(--line);background:var(--panel);padding:22px;display:grid;
+  grid-template-columns:300px 1fr;gap:26px;align-items:start}
+@media(max-width:820px){.preview{grid-template-columns:1fr}}
+.ds-panel{background:var(--panel);border:1px solid var(--line);font-size:var(--fs-panel);letter-spacing:var(--track-panel);
+  box-shadow:0 10px 34px rgba(0,0,0,.09)}
+.ds-panel-head{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;
+  border-bottom:1px solid var(--line);font-size:10px;font-weight:var(--fw-semibold);letter-spacing:var(--track-panel-head)}
+.mini{width:19px;height:19px;line-height:15px;padding:0;background:transparent;border:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+.ds-panel-body{padding:11px}
+.ds-row{margin-bottom:10px}
+.ds-row label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--soft)}
+.ds-row label em{font-style:normal;opacity:.72;font-size:9px;letter-spacing:0}
+.ds-row .val{color:var(--accent);font-weight:var(--fw-semibold)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:16px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;margin-top:-3.5px;background:var(--accent);border:0;border-radius:0}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent);border:0;border-radius:0}
+.ds-toggles{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+.ds-tg{flex:1 1 30%;min-width:68px;padding:6px 4px;background:transparent;border:1px solid var(--line);
+  color:var(--soft);font:inherit;font-size:var(--fs-toggle);letter-spacing:var(--track-panel);cursor:pointer;text-align:center}
+.ds-tg:hover{color:var(--ink)}
+.ds-tg.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.ds-btns{display:flex;gap:5px;margin-bottom:11px}
+.ds-btns .ds-tg{flex:1 1 0;min-width:0;padding:6px 2px;font-size:var(--fs-button);letter-spacing:.02em}
+.ds-spec{border-top:1px solid var(--line);padding-top:10px;min-height:66px}
+.ds-spec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.ds-spec-id{color:var(--accent);font-weight:var(--fw-bold);letter-spacing:.12em}
+.ds-spec-name{font-size:10px;color:var(--soft);letter-spacing:.02em}
+.ds-spec-rows{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:10px;color:var(--soft)}
+.ds-spec-rows span:nth-child(odd){color:var(--ink);opacity:.72}
+.ds-skill{margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+.ds-skill a{display:block;text-align:center;padding:6px 4px;font-size:9px;letter-spacing:.1em;
+  color:var(--soft);text-decoration:none;border:1px dashed var(--line)}
+.ds-skill a:hover{color:var(--accent);border-color:var(--accent)}
+.demo-block{margin-bottom:22px}
+.demo-block .cap{font-size:10px;letter-spacing:.14em;color:var(--soft);margin-bottom:10px}
+.ds-stamp{display:inline-block;border:1px solid var(--accent);color:var(--accent);font-size:10px;
+  letter-spacing:.22em;padding:7px 12px;transform:rotate(-6deg);opacity:.85;margin-right:14px}
+.ds-titleblock{width:246px;border:1px solid var(--line);background:var(--bg);font-size:9px;letter-spacing:.08em}
+.ds-titleblock .r1{padding:7px 9px;border-bottom:1px solid var(--line);color:var(--ink)}
+.ds-titleblock .r2,.ds-titleblock .r3{display:flex;border-bottom:1px solid var(--line)}
+.ds-titleblock .r3{border-bottom:0}
+.ds-titleblock .r2 span,.ds-titleblock .r3 span{padding:6px 8px;color:var(--soft);border-right:1px solid var(--line)}
+.ds-titleblock .r2 span:last-child,.ds-titleblock .r3 span:last-child{border-right:0}
+.ds-titleblock .r2 span{flex:1}
+.ds-titleblock .r3 span{flex:1;display:flex;justify-content:space-between}
+.ds-titleblock .rev{color:var(--accent)}
+/* 05 layout */
+.ruler{height:64px;border:1px solid var(--line);background:
+  repeating-linear-gradient(90deg,var(--faint) 0 1px,transparent 1px var(--sp-grid)),
+  repeating-linear-gradient(0deg,var(--faint) 0 1px,transparent 1px var(--sp-grid));
+  position:relative;margin:14px 0 20px}
+.ruler span{position:absolute;bottom:6px;left:10px;font-size:10px;color:var(--accent);background:var(--bg);padding:0 6px;letter-spacing:.1em}
+.ruler .mark{position:absolute;top:0;bottom:0;width:1px;background:var(--accent)}
+/* 07 token table */
+.token-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+#tokenTable code{white-space:nowrap}
+#componentTable td:first-child{white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,14px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);border:1px solid var(--accent);padding:9px 16px;
+  font-size:10px;letter-spacing:.12em;z-index:20;transition:opacity .18s,transform .18s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{margin-top:66px;padding-top:20px;border-top:1px solid var(--line);font-size:10px;letter-spacing:.14em;color:var(--soft);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+@media (max-width:720px){
+  .wrap{padding:0 20px 80px}
+  nav.toc{gap:6px 12px}
+  .linerow{grid-template-columns:110px 1fr}
+  .linerow .meta{display:none}
+}
+</style>
+</head>
+<body>
+<div class="frame"></div>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">STRUCTURE 01 &nbsp;/&nbsp; DESIGN SYSTEM &nbsp;/&nbsp; REV A</div>
+  <h1>ORTHOGRAPHIC<br>BLUEPRINT SYSTEM</h1>
+  <div class="sub">一张摊开的工程图纸，而不是一块屏幕 UI。这里定义它的纸、墨、线、字、间距与动效 —— 全部来自 <code>tokens.json</code>，可直接复制、可在三主题间切换、可离线运行。</div>
+  <div class="stamp">SPECIMEN</div>
+
+  <div class="themes" role="group" aria-label="主题切换">
+    <span class="lbl">THEME /</span>
+    <button class="tsw" data-theme-target="paper" aria-pressed="true">PAPER</button>
+    <button class="tsw" data-theme-target="ink" aria-pressed="false">INK</button>
+    <button class="tsw" data-theme-target="cyan" aria-pressed="false">CYANOTYPE</button>
+  </div>
+
+  <div class="cta">
+    <a class="btn primary" href="../index.html">◀ 返回图纸</a>
+    <a class="btn" href="../design.md">阅读 design.md</a>
+    <a class="btn" href="tokens.css">查看 tokens.css</a>
+    <a class="btn" href="../skill.html">设计技能包 ↗</a>
+  </div>
+</header>
+
+<nav class="toc" aria-label="章节导航">
+  <a href="#principles"><b>00</b>原则</a>
+  <a href="#color"><b>01</b>色彩</a>
+  <a href="#type"><b>02</b>排版</a>
+  <a href="#line"><b>03</b>线型</a>
+  <a href="#components"><b>04</b>组件</a>
+  <a href="#layout"><b>05</b>空间</a>
+  <a href="#motion"><b>06</b>动效</a>
+  <a href="#tokens"><b>07</b>令牌表</a>
+  <a href="#usage"><b>08</b>使用</a>
+</nav>
+
+<section id="principles">
+  <h2><em>00</em> 设计原则</h2>
+  <p class="lead">这套系统服务于一个明确目标：让交互式结构图看起来像 <strong>1:1 的机械制图</strong>，同时保持单文件、零依赖、可离线。动画与交互只允许让图纸「活起来」，不允许改变制图语言。</p>
+  <div class="grid">
+    <div class="card"><b>01 / 正投影，不透视</b><span>相机不做透视除法，线宽不随深度变化。立体感来自姿态旋转与视差，而不是近大远小。</span></div>
+    <div class="card"><b>02 / 信息分层靠线型</b><span>可见实线、隐藏虚线、中心线点划线，三种线型承担三种信息层级；颜色只做点睛。</span></div>
+    <div class="card"><b>03 / 纸先于屏幕</b><span>底色是纸、有网格、图框、裁切角标、印章与标题栏；禁止渐变、发光、玻璃拟态与圆角大卡片。</span></div>
+    <div class="card"><b>04 / 令牌即契约</b><span>所有数值集中在 tokens.json，三主题结构相同仅换值；改色先改令牌，再重新生成。</span></div>
+    <div class="card"><b>05 / 零依赖可离线</b><span>系统等宽字栈、无外部字体 / 图标 / CDN；成品与本文档页都能直接用 file:// 打开。</span></div>
+    <div class="card"><b>06 / 可测量、可退化</b><span>每件零件有编号与尺寸；无 JS / 无 Canvas / reduced-motion / 后台标签页均有明确降级路径。</span></div>
+  </div>
+</section>
+
+<section id="color">
+  <h2><em>01</em> 色彩系统</h2>
+  <p class="lead">十个语义角色，三套取值。点击任意色值即可复制。<strong>强调色只用于小面积</strong>：印章、剖切、选中、实时读数、角标、滑块拇指；绝不铺满整块区域。</p>
+  <div class="scroll"><table id="colorTable"></table></div>
+  <h3>对比度 / WCAG 2.1</h3>
+  <div class="scroll"><table id="contrastTable"></table></div>
+  <div class="note" id="contrastNote"></div>
+</section>
+
+<section id="type">
+  <h2><em>02</em> 排版系统</h2>
+  <p class="lead">只使用系统等宽字栈，不加载 webfont。图纸内全部英文大写，小字号靠字距建立秩序；Canvas 文字由 <code>spaced()</code> 逐字符绘制并缓存字宽，不依赖浏览器 <code>letterSpacing</code>。</p>
+  <div id="typeScale"></div>
+  <h3>字距与格式约定</h3>
+  <div class="tracks">
+    <div>CANVAS WIDE <b>ORTHOGRAPHIC</b></div>
+    <div>CANVAS NORMAL <b>SHEET 01 / 01</b></div>
+    <div>CANVAS TIGHT <b>DATUM ±0.00</b></div>
+    <div>PANEL HEAD <b>CONTROL / 控制台</b></div>
+  </div>
+  <div class="scroll"><table id="formatTable"></table></div>
+</section>
+
+<section id="line">
+  <h2><em>03</em> 线型与图层</h2>
+  <p class="lead">线型是这套系统最重要的信息编码。统一 <code>lineCap='butt'</code>、<code>lineJoin='round'</code>，不用阴影与渐变；<code>globalAlpha</code> 仅印章与十字准星可用。</p>
+  <div id="lineSamples"></div>
+  <h3>每帧绘制顺序</h3>
+  <div class="scroll"><table id="layerTable"></table></div>
+  <div class="note">实体遮挡不是靠深度缓冲：环带以 <code>fill('evenodd')</code> 填入 <code>--surface</code>，按中心 z 排序后由近及远覆盖，近处环带会擦掉后方线条。X-RAY 关闭该步即可看穿内部。</div>
+</section>
+
+<section id="components">
+  <h2><em>04</em> 组件目录</h2>
+  <p class="lead">左侧是真实控制台的组件复刻（可拖动滑块、点击开关），右侧是文档级组件。所有尺寸、描边、状态色都取自同一套令牌。</p>
+  <div class="preview">
+    <div class="ds-panel" id="dsPanel">
+      <div class="ds-panel-head"><span>CONTROL / 控制台</span><button class="mini" id="foldBtn" title="折叠">&#8722;</button></div>
+      <div class="ds-panel-body" id="dsBody">
+        <div class="ds-row"><label>EXPLODE <em>拆解</em><span class="val" data-for="rExplode">00%</span></label><input type="range" id="rExplode" min="0" max="100" value="0"></div>
+        <div class="ds-row"><label>SECTION <em>剖切</em><span class="val" data-for="rSection">OFF</span></label><input type="range" id="rSection" min="-100" max="100" value="0"></div>
+        <div class="ds-row"><label>SPIN <em>自转</em><span class="val" data-for="rSpin">1.00</span></label><input type="range" id="rSpin" min="0" max="200" value="100"></div>
+        <div class="ds-row"><label>SCALE <em>比例</em><span class="val" data-for="rZoom">100%</span></label><input type="range" id="rZoom" min="55" max="200" value="100"></div>
+        <div class="ds-toggles">
+          <button class="ds-tg on" data-toggle>HIDDEN</button>
+          <button class="ds-tg on" data-toggle>GRID</button>
+          <button class="ds-tg on" data-toggle>AUTO</button>
+          <button class="ds-tg" data-toggle>X-RAY</button>
+          <button class="ds-tg" data-toggle>SECTION</button>
+          <button class="ds-tg" data-toggle>PAUSE</button>
+        </div>
+        <div class="ds-btns">
+          <button class="ds-tg" id="themeDemo">PAPER</button>
+          <button class="ds-tg">RESET</button>
+          <button class="ds-tg">SHUFFLE</button>
+          <button class="ds-tg">PNG</button>
+        </div>
+        <div class="ds-spec">
+          <div class="ds-spec-head"><span class="ds-spec-id">R-03</span><span class="ds-spec-name">GIMBAL RING B</span></div>
+          <div class="ds-spec-rows" id="dsSpec"></div>
+        </div>
+        <div class="ds-skill"><a href="../skill.html">SKILL / 设计技能包 ↗</a></div>
+      </div>
+    </div>
+    <div>
+      <div class="demo-block">
+        <div class="cap">C-05 / 动作按钮（默认 · 主按钮 · 悬停 · 聚焦）</div>
+        <a class="btn" href="#components">DEFAULT</a>
+        <a class="btn primary" href="#components" style="margin-left:8px">PRIMARY</a>
+        <button class="btn" style="margin-left:8px" id="copyCss">复制 tokens.css</button>
+      </div>
+      <div class="demo-block">
+        <div class="cap">C-09 / 印章 与 C-08 / 标题栏</div>
+        <span class="ds-stamp">ORIGINAL</span>
+        <span class="ds-stamp" style="transform:rotate(3deg)">REUSABLE</span>
+        <div class="ds-titleblock" style="margin-top:16px">
+          <div class="r1">GIMBAL ASSEMBLY&nbsp; /&nbsp; 01</div>
+          <div class="r2"><span>1ST ANGLE</span><span>SCALE 1:1</span><span class="rev">REV 03</span></div>
+          <div class="r3"><span>DRAWN WORKBUDDY</span><span>2026.11.10</span></div>
+        </div>
+      </div>
+      <div class="demo-block">
+        <div class="cap">组件清单（10 项）</div>
+        <div class="scroll"><table id="componentTable"></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="layout">
+  <h2><em>05</em> 空间与布局</h2>
+  <p class="lead">24px 细网格 + 120px 主网格构成纸面；16px 内缩图框；右下控制台固定 252px（窄屏 210px）；结构随视口等比缩放，标注保持固定像素字号。</p>
+  <div class="ruler"><span>24px GRID / 120px MAJOR</span><i class="mark" style="left:120px"></i><i class="mark" style="left:240px"></i></div>
+  <div class="scroll"><table id="spaceTable"></table></div>
+  <div class="note">响应式：<code>DPR = min(2, devicePixelRatio)</code>；<code>baseScale = min(W/(W&lt;720?640:1060), H/700)</code>；中心 <code>cx=W/2</code>、<code>cy = W&lt;720 ? H*0.42 : H/2-6</code>。窄屏把右侧标签上移并限制 <code>cap = H*0.52</code>，避免与控制台重叠。</div>
+</section>
+
+<section id="motion">
+  <h2><em>06</em> 交互与动效</h2>
+  <p class="lead">所有手感参数集中在 <code>CFG</code>，改动一处即可调校。入场动画使用<strong>墙钟进度与帧计数进度取大值</strong>，后台标签页或无头渲染都不会卡在半途。</p>
+  <div class="scroll"><table id="motionTable"></table></div>
+  <h3>状态与入口</h3>
+  <ul>
+    <li><strong>指针</strong>：拖拽旋转（带惯性）、鼠标视差、滚轮拆解、Shift+滚轮缩放、点击拾取线段。</li>
+    <li><strong>键盘</strong>：<code>T</code> 主题 / <code>R</code> 重置 / <code>F</code> 随机姿态 / <code>S</code> PNG / <code>H</code> 隐藏线 / <code>G</code> 网格 / 空格暂停。</li>
+    <li><strong>URL</strong>：<code>theme explode section zoom yaw pitch part xray auto intro</code>，用于分享视图与自动化截图。</li>
+    <li><strong>降级</strong>：<code>prefers-reduced-motion</code> 关闭自转与入场；<code>document.hidden</code> 停绘；无 JS / 无 Canvas 2D 时显示静态提示。</li>
+  </ul>
+</section>
+
+<section id="tokens">
+  <h2><em>07</em> 全量令牌表</h2>
+  <p class="lead">下表由 <code>tokens.css</code> 实时解析，与样式表逐字一致。点击变量名复制声明；也可整表复制后直接贴进自己的项目。</p>
+  <div class="token-tools">
+    <button class="btn" id="copyAll">复制全部 CSS 变量</button>
+    <span class="badge" id="tokenCount"></span>
+  </div>
+  <div class="scroll"><table id="tokenTable"></table></div>
+</section>
+
+<section id="usage">
+  <h2><em>08</em> 使用与维护</h2>
+  <h3>三种消费方式</h3>
+  <ol>
+    <li><strong>直接用成品</strong>：<code>../index.html</code> 是单文件零依赖，双击即可运行，所有令牌已内联。</li>
+    <li><strong>做自己的图纸</strong>：用 <code>orthographic-blueprint</code> 技能包从模板生成，令牌值随模板一起带上。</li>
+    <li><strong>做配套页面</strong>：引入独立样式表，主题用 <code>data-theme</code> 切换：</li>
+  </ol>
+  <pre><code>&lt;link rel="stylesheet" href="design-system/tokens.css"&gt;
+&lt;html data-theme="cyan"&gt; … &lt;/html&gt;
+
+/* CSS */
+.panel { background: var(--panel); border: 1px solid var(--line); }
+.accent { color: var(--accent); }
+svg line { stroke-width: calc(var(--lw-bold) * 1px); }</code></pre>
+  <h3>改一个颜色 token 的正确流程</h3>
+  <pre><code># 1. 只改唯一事实来源
+vim design-system/tokens.json
+
+# 2. 重新生成 tokens.css 与本页面内的生成块
+npm run tokens
+
+# 3. 校验（含生成物一致性检查），通过后提交
+npm run verify
+git push origin main        # Pages 自动重新部署</code></pre>
+  <div class="note"><strong>分层关系</strong>：<code>design.md</code> 是项目级设计系统总纲；<code>design-system/tokens.json</code> 是机器可读的唯一数值源；<code>tokens.css</code> 与本页面内两个生成块是产物；技能包 <code>references/design-language.md</code> 是同一套风格的可携带版规范。四者数值必须一致，由 <code>verify.mjs</code> 守门。</div>
+  <h3>反模式</h3>
+  <div class="scroll"><table id="antiTable"></table></div>
+</section>
+
+<footer>
+  <span>ORTHOGRAPHIC BLUEPRINT DESIGN SYSTEM · REV A · 2026.11.10</span>
+  <span><a href="https://github.com/weepwood/structural-study">GitHub 仓库 ↗</a></span>
+</footer>
+
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite">COPIED</div>
+<noscript><div class="note">本页的色板、线型样本与令牌表由内联脚本渲染；关闭 JavaScript 时请直接查看 <a href="tokens.css">tokens.css</a> 与 <a href="../design.md">design.md</a>。</div></noscript>
+
+<script>
+/* BEGIN GENERATED DATA */
+const TOKENS = {
+  "$meta": {
+    "name": "Orthographic Blueprint Design System",
+    "version": "1.0.0",
+    "revision": "REV A",
+    "date": "2026-11-10",
+    "license": "MIT",
+    "sourceOfTruth": "design-system/tokens.json",
+    "implementation": "index.html",
+    "styleReference": "skills/orthographic-blueprint/references/design-language.md",
+    "generated": [
+      "design-system/tokens.css",
+      "design-system/index.html (generated blocks only)"
+    ],
+    "note": "手工改色请改本文件，再运行 npm run tokens；不要直接编辑生成物。"
+  },
+  "themes": {
+    "paper": {
+      "label": "PAPER",
+      "cn": "米白图纸",
+      "description": "默认主题。暖灰纸面，接近印刷蓝图晒印前的原稿。",
+      "bg": "#f0ebe4",
+      "ink": "#211e1a",
+      "surface": "#ece6de",
+      "faint": "rgba(33,30,26,.13)",
+      "grid": "rgba(33,30,26,.055)",
+      "hidden": "rgba(33,30,26,.30)",
+      "accent": "#b23d22",
+      "panel": "rgba(240,235,228,.94)",
+      "line": "rgba(33,30,26,.30)",
+      "soft": "rgba(33,30,26,.55)"
+    },
+    "ink": {
+      "label": "INK",
+      "cn": "墨黑反转",
+      "description": "反相底片。纸变墨、墨变纸，强调色提亮以维持层次。",
+      "bg": "#171512",
+      "ink": "#e9e3d8",
+      "surface": "#1e1b17",
+      "faint": "rgba(233,227,216,.14)",
+      "grid": "rgba(233,227,216,.06)",
+      "hidden": "rgba(233,227,216,.28)",
+      "accent": "#e87048",
+      "panel": "rgba(23,21,18,.94)",
+      "line": "rgba(233,227,216,.30)",
+      "soft": "rgba(233,227,216,.58)"
+    },
+    "cyan": {
+      "label": "CYANOTYPE",
+      "cn": "蓝晒",
+      "description": "氰版显影。深普鲁士蓝底、冷白线、琥珀色点睛。",
+      "bg": "#0f2b52",
+      "ink": "#e2edf8",
+      "surface": "#14325e",
+      "faint": "rgba(226,237,248,.16)",
+      "grid": "rgba(226,237,248,.075)",
+      "hidden": "rgba(226,237,248,.32)",
+      "accent": "#ffcb63",
+      "panel": "rgba(15,43,82,.95)",
+      "line": "rgba(226,237,248,.32)",
+      "soft": "rgba(226,237,248,.62)"
+    }
+  },
+  "colorRoles": {
+    "bg": {
+      "cn": "纸面 / 标签擦除底色",
+      "usage": "整幅背景、标题栏与标签底板、尺寸文字背后的擦除块"
+    },
+    "ink": {
+      "cn": "主墨线",
+      "usage": "可见轮廓、正文、页眉、尺寸值"
+    },
+    "surface": {
+      "cn": "实体面",
+      "usage": "环带 fill('evenodd') 的实体填充，用于遮挡后方线条"
+    },
+    "faint": {
+      "cn": "极淡辅助",
+      "usage": "厚度侧边、背面刻度、120px 主网格、剖面短斜线"
+    },
+    "grid": {
+      "cn": "细网格",
+      "usage": "24px 方格纸"
+    },
+    "hidden": {
+      "cn": "隐藏线",
+      "usage": "被实体遮住的轮廓，[4,4] 虚线"
+    },
+    "accent": {
+      "cn": "强调 / 点睛",
+      "usage": "印章、裁切角标、剖切、选中、实时读数、滑块拇指"
+    },
+    "panel": {
+      "cn": "控制台底",
+      "usage": "半透明浮层背景，配 backdrop-filter"
+    },
+    "line": {
+      "cn": "结构分隔线",
+      "usage": "图框、页眉分隔、尺寸线、面板描边、卡片边框"
+    },
+    "soft": {
+      "cn": "次级文字",
+      "usage": "引线、副行规格、状态说明、脚注"
+    }
+  },
+  "contrast": {
+    "method": "WCAG 2.1 相对亮度，rgba 先与 --bg 合成；数值为与同主题 --bg 的对比度",
+    "paper": {
+      "ink": 14,
+      "accent": 4.94,
+      "soft": 3.58,
+      "hidden": 1.87
+    },
+    "ink": {
+      "ink": 14.27,
+      "accent": 5.94,
+      "soft": 5.48,
+      "hidden": 2.22
+    },
+    "cyan": {
+      "ink": 11.9,
+      "accent": 9.39,
+      "soft": 5.5,
+      "hidden": 2.51
+    },
+    "notes": [
+      "ink 与 accent 在三主题均达到 WCAG AA 正文（≥4.5:1）。",
+      "paper 的 soft 为 3.58:1，仅达 AA 大字号（≥3:1），因此不得承载关键操作信息。",
+      "hidden 是装饰性隐藏线（1.87–2.51:1），不承担信息传达，仅作图纸层次提示。"
+    ]
+  },
+  "typography": {
+    "family": "ui-monospace, SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace",
+    "fallbackRule": "只使用系统等宽栈，禁止加载 webfont / 图标字体；中文随系统回退，不指定中文字族。",
+    "scale": {
+      "header": 12,
+      "headerSub": 9,
+      "readout": 10,
+      "readoutSmall": 9,
+      "dimension": 10,
+      "leader": 9.5,
+      "leaderSub": 8.5,
+      "titleBlock": 10,
+      "titleBlockSmall": 8.5,
+      "hint": 9.5,
+      "canvasLabel": 9,
+      "panel": 10,
+      "panelSmall": 9,
+      "toggle": 10,
+      "button": 9,
+      "docBody": 13,
+      "docHeading": 40
+    },
+    "tracking": {
+      "canvasWide": 1.4,
+      "canvasNormal": 1.1,
+      "canvasTight": 0.8,
+      "canvasMicro": 0.7,
+      "panel": "0.06em",
+      "panelHead": "0.16em",
+      "eyebrow": "0.3em"
+    },
+    "weight": {
+      "regular": 400,
+      "semibold": 600,
+      "bold": 700
+    },
+    "caseRule": "图纸内全部英文大写；编号 R-NN；数值补零到 4 位。",
+    "numberFormats": {
+      "diameter": "Ø 480.00 ±0.05",
+      "height": "H 480.00",
+      "angle": "YAW θ -35.5°",
+      "coordinate": "X 0480  Y 0210",
+      "scale": "SCALE 1:1.00",
+      "state": "STATE ASSEMBLED / EXPLODED 45%"
+    },
+    "rendering": "Canvas 文字用 spaced() 逐字符绘制并缓存字宽；不依赖 ctx.letterSpacing。"
+  },
+  "linework": {
+    "cap": "butt",
+    "join": "round",
+    "rules": "无阴影、无渐变、无线宽随深度变化；globalAlpha 仅印章 (.75) 与十字准星 (.55) 可用。",
+    "strokes": [
+      {
+        "id": "bold",
+        "cn": "主轮廓",
+        "color": "--ink",
+        "width": 1.55,
+        "selected": 2,
+        "dash": [],
+        "usage": "外轮廓、球体大圆"
+      },
+      {
+        "id": "solid",
+        "cn": "可见结构",
+        "color": "--ink",
+        "width": 1.05,
+        "selected": 1.45,
+        "dash": [],
+        "usage": "内轮廓、刻度、经纬线"
+      },
+      {
+        "id": "hidden",
+        "cn": "隐藏结构",
+        "color": "--hidden",
+        "width": 0.85,
+        "dash": [
+          4,
+          4
+        ],
+        "usage": "被实体遮住的轮廓"
+      },
+      {
+        "id": "faint",
+        "cn": "辅助线",
+        "color": "--faint",
+        "width": 0.8,
+        "dash": [],
+        "usage": "厚度侧边、背面刻度、剖面短斜线"
+      },
+      {
+        "id": "center",
+        "cn": "中心线",
+        "color": "--faint",
+        "width": 1,
+        "dash": [
+          12,
+          4,
+          2,
+          4
+        ],
+        "usage": "两条结构基准轴"
+      },
+      {
+        "id": "guide",
+        "cn": "装配引导",
+        "color": "--accent",
+        "width": 0.8,
+        "dash": [
+          9,
+          4,
+          2,
+          4
+        ],
+        "usage": "爆炸视图回到原位的点划线"
+      },
+      {
+        "id": "section",
+        "cn": "剖切扫描",
+        "color": "--accent",
+        "width": 1.3,
+        "dash": [
+          9,
+          4,
+          2,
+          4
+        ],
+        "usage": "水平剖切线 + SECTION A-A"
+      },
+      {
+        "id": "sectionHit",
+        "cn": "剖切交点",
+        "color": "--accent",
+        "width": 1.4,
+        "dash": [],
+        "usage": "线段与扫描线求交后的短竖标记"
+      },
+      {
+        "id": "frame",
+        "cn": "图框",
+        "color": "--line",
+        "width": 1,
+        "dash": [],
+        "usage": "16px 内缩矩形"
+      },
+      {
+        "id": "corner",
+        "cn": "裁切角标",
+        "color": "--accent",
+        "width": 1.2,
+        "dash": [],
+        "usage": "四角 L 形短线"
+      },
+      {
+        "id": "dimension",
+        "cn": "尺寸线",
+        "color": "--line",
+        "width": 0.9,
+        "dash": [],
+        "usage": "带实心三角箭头的直径 / 高度标注"
+      },
+      {
+        "id": "leader",
+        "cn": "引线",
+        "color": "--soft",
+        "width": 0.8,
+        "dash": [],
+        "usage": "三段折线 + 端点双圆点 + 零件编号"
+      }
+    ]
+  },
+  "layers": [
+    {
+      "order": 1,
+      "name": "drawPaper()",
+      "cn": "纸面：底色、双层网格、图框、角标、页眉、印章"
+    },
+    {
+      "order": 2,
+      "name": "drawAxes()",
+      "cn": "基准：中心线、地面线、剖面短斜线、DATUM"
+    },
+    {
+      "order": 3,
+      "name": "drawPrim() × N",
+      "cn": "结构：按中心 z 排序，evenodd 实体擦除 → hidden → faint → solid → bold → 标记"
+    },
+    {
+      "order": 4,
+      "name": "drawSection()",
+      "cn": "剖切：扫描线、求交标记、A-A 标签"
+    },
+    {
+      "order": 5,
+      "name": "drawLeaders() / drawDimensions() / drawHUD()",
+      "cn": "标注：引线编号、尺寸线、角度扇形、读数、准星、标题栏"
+    },
+    {
+      "order": 6,
+      "name": "DOM panel",
+      "cn": "控制台：浏览器合成层，永远在最上"
+    }
+  ],
+  "space": {
+    "grid": 24,
+    "majorGrid": 120,
+    "frameInset": 16,
+    "cornerMarkShort": 7,
+    "cornerMarkLong": 22,
+    "hatchStep": 13,
+    "headerX": 30,
+    "headerY": 36,
+    "headerRuleY": 50,
+    "readoutY": [
+      78,
+      95,
+      112,
+      129
+    ],
+    "panelRight": 22,
+    "panelBottom": 22,
+    "panelWidth": 252,
+    "panelWidthMobile": 210,
+    "panelFoldedWidth": 150,
+    "panelPadding": 11,
+    "titleBlockWidth": 246,
+    "titleBlockHeight": 72,
+    "labelPlateWidth": 186,
+    "labelPlateHeight": 30,
+    "leaderMinGap": 50,
+    "leaderRightInset": 300,
+    "pickRadius": 13,
+    "dprMax": 2
+  },
+  "breakpoints": {
+    "mobile": 720,
+    "doc": 640,
+    "mobileCenterY": "H*0.42",
+    "desktopCenterY": "H/2-6",
+    "baseScale": "min(W/(W<720?640:1060), H/700)"
+  },
+  "motion": {
+    "followYaw": 0.16,
+    "followPitch": 0.11,
+    "parallaxEase": 0.06,
+    "dragSpeed": 0.006,
+    "inertia": 0.93,
+    "autoSpin": 0.0016,
+    "introMs": 1900,
+    "introFrames": 100,
+    "wheelExplode": 0.0006,
+    "wheelZoom": 0.0008,
+    "introEasing": "1-(1-t)^3",
+    "introRule": "墙钟进度与帧计数进度取大值，避免后台标签页 / 无头渲染卡在半途",
+    "panelTransition": "0.18s"
+  },
+  "components": [
+    {
+      "id": "C-01",
+      "name": "Canvas drawing",
+      "cn": "图纸画布",
+      "states": "default / dragging / selected / exploded / section",
+      "tokens": "--bg --ink --line --accent",
+      "source": "index.html → draw()"
+    },
+    {
+      "id": "C-02",
+      "name": "Control panel",
+      "cn": "控制台",
+      "states": "open / folded",
+      "tokens": "--panel --line --soft",
+      "source": "index.html → .panel"
+    },
+    {
+      "id": "C-03",
+      "name": "Range slider",
+      "cn": "参数滑块",
+      "states": "idle / active",
+      "tokens": "--line --accent --soft",
+      "source": "index.html → input[type=range]"
+    },
+    {
+      "id": "C-04",
+      "name": "Toggle",
+      "cn": "方形开关",
+      "states": "off / on / hover / focus",
+      "tokens": "--line --soft --accent",
+      "source": "index.html → .tg"
+    },
+    {
+      "id": "C-05",
+      "name": "Action button",
+      "cn": "动作按钮",
+      "states": "idle / hover / focus",
+      "tokens": "--line --panel --accent",
+      "source": "index.html → .btns .tg / skill.html → .btn"
+    },
+    {
+      "id": "C-06",
+      "name": "Spec card",
+      "cn": "零件规格卡",
+      "states": "empty / populated / selected",
+      "tokens": "--line --soft --accent",
+      "source": "index.html → .spec"
+    },
+    {
+      "id": "C-07",
+      "name": "Leader label",
+      "cn": "引线编号",
+      "states": "default / selected",
+      "tokens": "--bg --soft --ink --accent",
+      "source": "index.html → drawLeaders()"
+    },
+    {
+      "id": "C-08",
+      "name": "Title block",
+      "cn": "标题栏",
+      "states": "static",
+      "tokens": "--bg --line --soft --accent",
+      "source": "index.html → drawHUD()"
+    },
+    {
+      "id": "C-09",
+      "name": "Stamp",
+      "cn": "印章",
+      "states": "static",
+      "tokens": "--accent",
+      "source": "drawPaper() / skill.html → .stamp"
+    },
+    {
+      "id": "C-10",
+      "name": "Doc frame",
+      "cn": "文档图框",
+      "states": "static",
+      "tokens": "--line --accent --grid",
+      "source": "skill.html / design-system/index.html → .frame"
+    }
+  ],
+  "urlState": {
+    "params": [
+      "theme",
+      "explode",
+      "section",
+      "zoom",
+      "yaw",
+      "pitch",
+      "part",
+      "xray",
+      "auto",
+      "intro"
+    ],
+    "example": "?theme=cyan&explode=45&section=30&part=R-03",
+    "purpose": "分享特定视图，同时用于自动化截图与视觉回归"
+  },
+  "a11y": {
+    "canvas": "<canvas role=\"img\" aria-label=\"…\">",
+    "keyboard": ":focus-visible 使用 2px --accent 描边，offset 2px",
+    "reducedMotion": "prefers-reduced-motion 关闭自转与入场动画",
+    "noJs": "<noscript> 静态提示",
+    "noCanvas": "Canvas 2D 不可用时插入 .fallback",
+    "backgroundThrottle": "document.hidden 时跳过绘制",
+    "themeColor": "meta[name=theme-color] 随 --bg 同步"
+  },
+  "antiPatterns": [
+    "透视相机 / 按 z 缩放线宽",
+    "wireframe 直出、无可见隐藏层级",
+    "渐变、发光、玻璃拟态、圆角大卡片",
+    "纯白 #fff / 纯黑 #000 / 高饱和霓虹",
+    "大面积强调色或彩色实体填充",
+    "无编号无尺寸的线框图",
+    "外部字体、图标库、CDN 资源",
+    "标签压线、引线穿过文字"
+  ]
+};
+/* END GENERATED DATA */
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const themes = TOKENS.themes;
+const themeKeys = Object.keys(themes);
+
+/* ---------- theme switching ---------- */
+let current = new URLSearchParams(location.search).get('theme');
+if (!themeKeys.includes(current)) current = 'paper';
+function setTheme(name){
+  current = name;
+  document.documentElement.dataset.theme = name;
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', themes[name].bg);
+  document.querySelectorAll('[data-theme-target]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.themeTarget === name)));
+  $('themeDemo').textContent = themes[name].label;
+  try { localStorage.setItem('ob-theme', name); } catch(e) {}
+}
+try {
+  const saved = localStorage.getItem('ob-theme');
+  if (!new URLSearchParams(location.search).has('theme') && themeKeys.includes(saved)) current = saved;
+} catch(e) {}
+setTheme(current);
+document.querySelectorAll('[data-theme-target]').forEach(b =>
+  b.addEventListener('click', () => setTheme(b.dataset.themeTarget)));
+
+/* ---------- copy helper ---------- */
+let toastTimer;
+function toast(msg){
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1500);
+}
+function copy(text, label){
+  const done = () => toast('COPIED  ' + (label || ''));
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => fallback());
+  } else fallback();
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch(e) { toast('COPY FAILED'); }
+    ta.remove();
+  }
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-copy]');
+  if (t) copy(t.dataset.copy, t.dataset.label || '');
+});
+
+/* ---------- 01 color ---------- */
+const roles = TOKENS.colorRoles;
+let h = '<thead><tr><th>ROLE / 语义</th>' + themeKeys.map(k =>
+  `<th>${esc(themes[k].label)}</th>`).join('') + '<th>用途</th></tr></thead><tbody>';
+for (const [key, info] of Object.entries(roles)) {
+  h += `<tr><td><code>--${esc(key)}</code><br>${esc(info.cn)}</td>`;
+  for (const k of themeKeys) {
+    const v = themes[k][key];
+    h += `<td><button class="swatch" data-copy="--${esc(key)}: ${esc(v)};" data-label="--${esc(key)}">`
+       + `<span class="chip" style="background:${esc(v)}"></span><code>${esc(v)}</code></button></td>`;
+  }
+  h += `<td>${esc(info.usage)}</td></tr>`;
+}
+$('colorTable').innerHTML = h + '</tbody>';
+
+const contrast = TOKENS.contrast;
+h = '<thead><tr><th>THEME</th><th>ink / bg</th><th>accent / bg</th><th>soft / bg</th><th>hidden / bg</th></tr></thead><tbody>';
+const grade = v => {
+  const cls = v >= 7 ? 'badge aaa' : v >= 4.5 ? 'badge' : 'badge warn';
+  const txt = v >= 7 ? 'AAA' : v >= 4.5 ? 'AA' : 'AA-LARGE / DECORATIVE';
+  return `${v.toFixed(2)} <span class="${cls}">${txt}</span>`;
+};
+for (const k of themeKeys) {
+  const c = contrast[k];
+  h += `<tr><td>${esc(themes[k].label)}</td><td>${grade(c.ink)}</td><td>${grade(c.accent)}</td>`
+     + `<td>${grade(c.soft)}</td><td>${grade(c.hidden)}</td></tr>`;
+}
+$('contrastTable').innerHTML = h + '</tbody>';
+$('contrastNote').innerHTML = esc(contrast.method) + '。<br>' + contrast.notes.map(esc).join('<br>');
+
+/* ---------- 02 type ---------- */
+const scale = TOKENS.typography.scale;
+const scaleLabel = {header:'页眉主行',headerSub:'页眉副行',readout:'实时读数',readoutSmall:'读数副行',
+  dimension:'尺寸值',leader:'引线主行',leaderSub:'引线副行',titleBlock:'标题栏主行',titleBlockSmall:'标题栏副行',
+  hint:'底部提示',canvasLabel:'刻度数字',panel:'控制台',panelSmall:'控制台副行',toggle:'开关',button:'按钮',
+  docBody:'文档正文',docHeading:'文档标题'};
+h = '';
+for (const [k, v] of Object.entries(scale)) {
+  const name = 'fs-' + k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  h += `<div class="typerow"><span class="tag">${esc(scaleLabel[k] || k)}</span>`
+     + `<span class="val">--${esc(name)}<br>${v}px</span>`
+     + `<span class="sample" style="font-size:var(--${esc(name)})">ORTHOGRAPHIC STUDY 01</span></div>`;
+}
+$('typeScale').innerHTML = h;
+h = '<thead><tr><th>MODE</th><th>格式</th></tr></thead><tbody>';
+for (const [k, v] of Object.entries(TOKENS.typography.numberFormats))
+  h += `<tr><td>${esc(k)}</td><td><code>${esc(v)}</code></td></tr>`;
+$('formatTable').innerHTML = h + '</tbody>';
+
+/* ---------- 03 linework ---------- */
+h = '';
+for (const s of TOKENS.linework.strokes) {
+  const color = `var(${s.color})`;
+  const dash = s.dash && s.dash.length ? ` stroke-dasharray="${s.dash.join(' ')}"` : '';
+  const width = `calc(var(--lw-${s.id.replace(/([a-z0-9])([A-Z])/g,'$1-$2').toLowerCase()}) * 1px)`;
+  h += `<div class="linerow"><span class="nm">${esc(s.cn)} <code>--${esc(s.id)}</code></span>`
+     + `<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">`
+     + `<line x1="2" y1="10" x2="198" y2="10" style="stroke:${color};stroke-width:${width}"${dash}/></svg>`
+     + `<span class="meta">${s.width}px${s.selected ? ' / ' + s.selected : ''}</span></div>`;
+}
+$('lineSamples').innerHTML = h;
+h = '<thead><tr><th>#</th><th>绘制层</th><th>内容</th></tr></thead><tbody>';
+for (const l of TOKENS.layers)
+  h += `<tr><td>${l.order}</td><td><code>${esc(l.name)}</code></td><td>${esc(l.cn)}</td></tr>`;
+$('layerTable').innerHTML = h + '</tbody>';
+
+/* ---------- 04 components ---------- */
+$('dsSpec').innerHTML = ['Ø 390.00','SECT 24 × 12','AL 6061-T6','4 × BRG P4','REV 02','TILT 65.8°']
+  .map(x => `<span>${esc(x)}</span>`).join('');
+h = '<thead><tr><th>ID</th><th>组件</th><th>状态</th><th>令牌</th></tr></thead><tbody>';
+for (const c of TOKENS.components)
+  h += `<tr><td>${esc(c.id)}</td><td><b style="color:var(--ink);font-weight:600">${esc(c.name)}</b><br>${esc(c.cn)}</td>`
+     + `<td>${esc(c.states)}</td><td><code>${esc(c.tokens)}</code></td></tr>`;
+$('componentTable').innerHTML = h + '</tbody>';
+
+document.querySelectorAll('[data-toggle]').forEach(b =>
+  b.addEventListener('click', () => b.classList.toggle('on')));
+$('foldBtn').addEventListener('click', () => {
+  const body = $('dsBody'); const hidden = body.style.display === 'none';
+  body.style.display = hidden ? '' : 'none';
+  $('foldBtn').textContent = hidden ? '−' : '+';
+  $('dsPanel').style.width = hidden ? '' : '150px';
+});
+$('themeDemo').addEventListener('click', () => {
+  const i = themeKeys.indexOf(current);
+  setTheme(themeKeys[(i + 1) % themeKeys.length]);
+});
+const sliders = [
+  ['rExplode', v => String(v).padStart(2,'0') + '%'],
+  ['rSection', v => v === 0 ? 'OFF' : String(v)],
+  ['rSpin', v => (v/100).toFixed(2)],
+  ['rZoom', v => v + '%']
+];
+for (const [id, fmt] of sliders) {
+  const el = $(id);
+  const out = document.querySelector(`[data-for="${id}"]`);
+  el.addEventListener('input', () => { out.textContent = fmt(+el.value); });
+}
+
+/* ---------- 05 space ---------- */
+const spaceLabel = {grid:'细网格',majorGrid:'主网格',frameInset:'图框内缩',cornerMarkShort:'角标短线',
+  cornerMarkLong:'角标长线',hatchStep:'剖面线步长',headerX:'页眉 X',headerY:'页眉 Y',headerRuleY:'页眉分隔线 Y',
+  panelRight:'控制台右距',panelBottom:'控制台下距',panelWidth:'控制台宽',panelWidthMobile:'移动端宽',
+  panelFoldedWidth:'折叠宽',panelPadding:'面板内边距',titleBlockWidth:'标题栏宽',titleBlockHeight:'标题栏高',
+  labelPlateWidth:'标签底板宽',labelPlateHeight:'标签底板高',leaderMinGap:'引线最小间距',
+  leaderRightInset:'右侧标签避让',pickRadius:'拾取半径',dprMax:'最大 DPR'};
+h = '<thead><tr><th>TOKEN</th><th>用途</th><th>值</th></tr></thead><tbody>';
+for (const [k, v] of Object.entries(TOKENS.space)) {
+  if (Array.isArray(v)) continue;
+  const name = '--sp-' + k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+  const unit = k === 'dprMax' ? '' : ' px';
+  h += `<tr><td><code>${esc(name)}</code></td><td>${esc(spaceLabel[k] || k)}</td>`
+     + `<td>${esc(v)}${unit}</td></tr>`;
+}
+$('spaceTable').innerHTML = h + '</tbody>';
+
+/* ---------- 06 motion ---------- */
+const motionLabel = {followYaw:'鼠标视差最大偏航（弧度）',followPitch:'鼠标视差最大俯仰（弧度）',
+  parallaxEase:'视差缓动系数',dragSpeed:'拖拽弧度 / 像素',inertia:'松手速度衰减',autoSpin:'自动自转系数',
+  introMs:'入场动画墙钟时长 (ms)',introFrames:'入场动画帧计数上限',wheelExplode:'滚轮拆解灵敏度',
+  wheelZoom:'滚轮缩放灵敏度',pickRadius:'点击拾取半径 (px)',introEasing:'入场缓动曲线',
+  introRule:'入场进度规则',panelTransition:'面板过渡时长'};
+const motion = Object.assign({}, TOKENS.motion, {pickRadius: TOKENS.space.pickRadius});
+h = '<thead><tr><th>CFG KEY</th><th>含义</th><th>值</th></tr></thead><tbody>';
+for (const [k, v] of Object.entries(motion))
+  h += `<tr><td><code>${esc(k)}</code></td><td>${esc(motionLabel[k] || k)}</td><td>${esc(v)}</td></tr>`;
+$('motionTable').innerHTML = h + '</tbody>';
+
+/* ---------- 07 token table (parsed from the real stylesheet) ---------- */
+const sheet = $('token-sheet').textContent
+  .replace('/* BEGIN GENERATED CSS */','').replace('/* END GENERATED CSS */','').trim();
+const declarations = [...sheet.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)]
+  .map(m => ({name:m[1], value:m[2].trim()}));
+$('tokenCount').textContent = declarations.length + ' VARIABLES';
+h = '<thead><tr><th>VARIABLE</th><th>VALUE</th><th>APPEARS IN</th></tr></thead><tbody>';
+const seen = {}, counts = {};
+for (const d of declarations) counts[d.name] = (counts[d.name] || 0) + 1;
+// Color roles appear once per theme (3×); everything else lives in the base :root block.
+for (const d of declarations) {
+  seen[d.name] = (seen[d.name] || 0) + 1;
+  const where = counts[d.name] === 3 ? esc(themeKeys[seen[d.name] - 1]) : 'base';
+  h += `<tr><td><button class="swatch" data-copy="${esc(d.name)}: ${esc(d.value)};" data-label="${esc(d.name)}">`
+     + `<code>${esc(d.name)}</code></button></td><td><code>${esc(d.value)}</code></td>`
+     + `<td>${where}</td></tr>`;
+}
+$('tokenTable').innerHTML = h + '</tbody>';
+$('copyAll').addEventListener('click', () => copy(sheet, 'tokens.css'));
+$('copyCss').addEventListener('click', () => copy(sheet, 'tokens.css'));
+
+/* ---------- 08 anti-patterns ---------- */
+h = '<thead><tr><th>#</th><th>禁止</th></tr></thead><tbody>';
+TOKENS.antiPatterns.forEach((a,i) => { h += `<tr><td>${String(i+1).padStart(2,'0')}</td><td>${esc(a)}</td></tr>`; });
+$('antiTable').innerHTML = h + '</tbody>';
+})();
+</script>
+</body>
+</html>
