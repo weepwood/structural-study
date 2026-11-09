@@ -1,0 +1,24 @@
+{
+  "name": "structural-study",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive orthographic drawing of a parametric gimbal assembly. Single HTML file, zero dependencies.",
+  "type": "module",
+  "scripts": {
+    "verify": "node scripts/verify.mjs",
+    "serve": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "canvas",
+    "orthographic-projection",
+    "engineering-drawing",
+    "generative",
+    "three-js-free",
+    "github-pages"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,21 @@
+# Agent / workspace metadata
+.workbuddy/
+
+# Dependencies & build output
+node_modules/
+_site/
+dist/
+
+# Local preview / verification artifacts
+shot-*.png
+check.html
+_*.js
+_*.py
+*.log
+
+# Environment & OS
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

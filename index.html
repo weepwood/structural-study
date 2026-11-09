@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STRUCTURE 01 — GIMBAL ASSEMBLY / 结构研究</title>
+<meta name="description" content="An interactive orthographic drawing of a parametric gimbal assembly: visible/hidden/center line work, exploded view, section scan and blueprint themes. Single HTML file, zero dependencies.">
+<meta name="author" content="weepwood">
+<meta name="theme-color" content="#f0ebe4">
+<meta property="og:type" content="website">
+<meta property="og:title" content="STRUCTURE 01 — Gimbal Assembly">
+<meta property="og:description" content="参数化万向环装配体的交互式正交制图研究：线稿、爆炸视图、剖切扫描与三种图纸主题。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%23f0ebe4'/%3E%3Ccircle%20cx='32'%20cy='32'%20r='17'%20fill='none'%20stroke='%23211e1a'%20stroke-width='2'/%3E%3Cellipse%20cx='32'%20cy='32'%20rx='27'%20ry='9'%20fill='none'%20stroke='%23b23d22'%20stroke-width='2'%20transform='rotate(-28%2032%2032)'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f0ebe4; --ink:#211e1a; --surface:#ece6de; --faint:rgba(33,30,26,.13);
+  --grid:rgba(33,30,26,.055); --hidden:rgba(33,30,26,.30); --accent:#b23d22;
+  --panel:rgba(240,235,228,.94); --line:rgba(33,30,26,.30); --soft:rgba(33,30,26,.55);
+}
+[data-theme="ink"]{
+  --bg:#171512; --ink:#e9e3d8; --surface:#1e1b17; --faint:rgba(233,227,216,.14);
+  --grid:rgba(233,227,216,.06); --hidden:rgba(233,227,216,.28); --accent:#e87048;
+  --panel:rgba(23,21,18,.94); --line:rgba(233,227,216,.30); --soft:rgba(233,227,216,.58);
+}
+[data-theme="cyan"]{
+  --bg:#0f2b52; --ink:#e2edf8; --surface:#14325e; --faint:rgba(226,237,248,.16);
+  --grid:rgba(226,237,248,.075); --hidden:rgba(226,237,248,.32); --accent:#ffcb63;
+  --panel:rgba(15,43,82,.95); --line:rgba(226,237,248,.32); --soft:rgba(226,237,248,.62);
+}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fallback{position:fixed;inset:0;z-index:9;display:grid;place-items:center;padding:24px;
+  text-align:center;font-size:12px;line-height:1.9;background:var(--bg)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink)}
+body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;-webkit-font-smoothing:antialiased}
+#c{display:block;width:100vw;height:100vh;cursor:grab;touch-action:none}
+#c.dragging{cursor:grabbing}
+
+.panel{
+  position:fixed;right:22px;bottom:22px;width:252px;z-index:5;
+  background:var(--panel);border:1px solid var(--line);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  box-shadow:0 10px 34px rgba(0,0,0,.09);
+  font-size:10px;letter-spacing:.06em;
+}
+.panel.folded{width:150px}
+.panel.folded .panel-body{display:none}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 11px;border-bottom:1px solid var(--line);
+  font-size:10px;font-weight:600;letter-spacing:.16em;
+}
+.panel.folded .panel-head{border-bottom:0}
+.mini{
+  width:19px;height:19px;line-height:15px;padding:0;
+  background:transparent;border:1px solid var(--line);color:var(--ink);
+  font:inherit;cursor:pointer;
+}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+.panel-body{padding:11px}
+.row{margin-bottom:10px}
+.row label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--soft)}
+.row label em{font-style:normal;opacity:.72;font-size:9px;letter-spacing:0}
+.row .val{color:var(--accent);font-weight:600}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:16px;background:transparent;cursor:pointer;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:9px;height:9px;margin-top:-3.5px;
+  background:var(--accent);border:0;border-radius:0;
+}
+input[type=range]::-moz-range-track{height:2px;background:var(--line)}
+input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent);border:0;border-radius:0}
+.toggles{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 10px}
+.tg{
+  flex:1 1 30%;min-width:68px;padding:6px 4px;background:transparent;
+  border:1px solid var(--line);color:var(--soft);font:inherit;font-size:10px;
+  letter-spacing:.06em;cursor:pointer;text-align:center;
+}
+.tg:hover{color:var(--ink)}
+.tg.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.btns{display:flex;gap:5px;margin-bottom:11px}
+.btns .tg{flex:1 1 0;min-width:0;padding:6px 2px;font-size:9px;letter-spacing:.02em}
+.spec{border-top:1px solid var(--line);padding-top:10px;min-height:66px}
+.spec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.spec-id{color:var(--accent);font-weight:700;letter-spacing:.12em}
+.spec-name{font-size:10px;color:var(--soft);letter-spacing:.02em}
+.spec-rows{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:10px;color:var(--soft);letter-spacing:0}
+.spec-rows span:nth-child(odd){color:var(--ink);opacity:.72}
+.spec-empty{font-size:10px;color:var(--soft);line-height:1.7;opacity:.8}
+@media (max-width:720px){
+  .panel{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:210px;font-size:9px}
+}
+</style>
+</head>
+<body>
+<canvas id="c" role="img" aria-label="可交互的正交投影万向环装配体结构图：拖拽旋转、滚轮拆解、点击选取零件"></canvas>
+<noscript><div class="fallback">This drawing requires JavaScript.<br>请开启 JavaScript 以查看交互式结构图。</div></noscript>
+
+<div class="panel" id="panel">
+  <div class="panel-head"><span>CONTROL / 控制台</span><button class="mini" id="fold" title="折叠">&#8722;</button></div>
+  <div class="panel-body" id="panelBody">
+    <div class="row"><label>EXPLODE <em>拆解</em><span class="val" id="vExplode">00%</span></label><input type="range" id="explode" min="0" max="100" value="0"></div>
+    <div class="row"><label>SECTION <em>剖切</em><span class="val" id="vSection">OFF</span></label><input type="range" id="section" min="-100" max="100" value="0"></div>
+    <div class="row"><label>SPIN <em>自转</em><span class="val" id="vSpin">1.00</span></label><input type="range" id="spin" min="0" max="200" value="100"></div>
+    <div class="row"><label>SCALE <em>比例</em><span class="val" id="vZoom">100%</span></label><input type="range" id="zoom" min="55" max="200" value="100"></div>
+    <div class="toggles">
+      <button class="tg on" data-k="hidden" title="隐藏虚线">HIDDEN</button>
+      <button class="tg on" data-k="grid" title="图纸网格">GRID</button>
+      <button class="tg on" data-k="auto" title="自动旋转">AUTO</button>
+      <button class="tg" data-k="xray" title="X 光：关闭实体遮挡">X-RAY</button>
+      <button class="tg" data-k="sectionOn" title="剖切扫描线">SECTION</button>
+      <button class="tg" data-k="paused" title="暂停动画">PAUSE</button>
+    </div>
+    <div class="btns">
+      <button class="tg" id="btnTheme">PAPER</button>
+      <button class="tg" id="btnReset">RESET</button>
+      <button class="tg" id="btnShuffle">SHUFFLE</button>
+      <button class="tg" id="btnPng">PNG</button>
+    </div>
+    <div class="spec">
+      <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName">NO SELECTION</span></div>
+      <div class="spec-empty" id="specEmpty">点击线段选取零件 · 查看规格<br>DRAG 旋转 / WHEEL 拆解 / T 切主题</div>
+      <div class="spec-rows" id="specRows" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+if(!ctx){
+  document.body.insertAdjacentHTML('beforeend',
+    '<div class="fallback">当前浏览器不支持 Canvas 2D，无法显示结构图。<br>请使用较新的 Chrome / Edge / Firefox / Safari。</div>');
+  return;
+}
+const $ = id => document.getElementById(id);
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
+const C = {};
+/* ---------- 集中调参：交互手感 / 动画节奏（改这里即可调校） ---------- */
+const CFG = {
+  followYaw:.16, followPitch:.11, parallaxEase:.06,
+  dragSpeed:.006, inertia:.93, autoSpin:.0016,
+  introMs:1900, introFrames:100,
+  wheelExplode:.0006, wheelZoom:.0008,
+  pickRadius:13
+};
+const THEMES = ['paper','ink','cyan'];
+const THEME_LABEL = {paper:'PAPER',ink:'INK',cyan:'CYANO'};
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement);
+  ['bg','ink','surface','faint','grid','hidden','accent','panel','line','soft'].forEach(k=>{
+    C[k] = cs.getPropertyValue('--'+k).trim();
+  });
+  // 移动端浏览器地址栏跟随图纸主题
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', C.bg);
+}
+
+let W=0, H=0, DPR=1, baseS=1, S=1, cx=0, cy=0;
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  baseS = Math.min(W/(W<720?640:1060), H/700);
+  cx = W/2; cy = W<720 ? H*0.42 : H/2 - 6;
+}
+
+const st = {
+  yaw:-0.62, pitch:0.36, roll:0.02,
+  velY:0, velP:0, parX:0, parY:0, tarX:0, tarY:0,
+  dragging:false, lx:0, ly:0, downX:0, downY:0,
+  mx:-999, my:-999,
+  explode:0, spin:1, zoom:1, section:0,
+  hidden:true, grid:true, auto:!RM, xray:false, sectionOn:false,
+  paused:false, selected:null, themeIdx:0,
+  t0: RM ? -1e9 : Date.now()
+};
+
+/* ---------- 零件定义：一台参数化的多轴万向环装配体 ---------- */
+const PARTS = [
+  {id:'R-01', name:'CORE SPHERE', kind:'sphere', r:78, boom:0, tilt:[0,0,0],
+   spec:['Ø 156.00','LAT 5 × LON 8','SS 316L','2.40 kg','REV 01','AISI 316L']},
+  {id:'R-02', name:'GIMBAL RING A', kind:'ring', r:150, t:12, h:6, boom:64,
+   tilt:[0.25,1.22,0.15], spec:['Ø 300.00','SECT 24 × 12','AL 6061-T6','4 × BRG P4','REV 02','TILT 69.9°']},
+  {id:'R-03', name:'GIMBAL RING B', kind:'ring', r:195, t:12, h:6, boom:128,
+   tilt:[1.15,0.35,-0.20], spec:['Ø 390.00','SECT 24 × 12','AL 6061-T6','4 × BRG P4','REV 02','TILT 65.8°']},
+  {id:'R-04', name:'GIMBAL RING C', kind:'ring', r:240, t:12, h:6, boom:192,
+   tilt:[-0.50,0.75,0.40], spec:['Ø 480.00','SECT 24 × 12','AL 7075-T6','4 × BRG P4','REV 03','TILT 42.9°']}
+];
+
+/* ---------- 数学：正交投影 + 三轴旋转 ---------- */
+function rot(p,y,pi,ro){
+  const cy=Math.cos(y), sy=Math.sin(y), cp=Math.cos(pi), sp=Math.sin(pi), cr=Math.cos(ro), sr=Math.sin(ro);
+  const x1 = p[0]*cy + p[2]*sy, z1 = -p[0]*sy + p[2]*cy;
+  const y2 = p[1]*cp - z1*sp, z2 = p[1]*sp + z1*cp;
+  return [x1*cr - y2*sr, x1*sr + y2*cr, z2];   // z 不随 roll 改变 → 深度 = 相机距离
+}
+const proj = p => [cx + p[0]*S, cy - p[1]*S, p[2]];
+const clamp = (v,a,b) => v<a?a:v>b?b:v;
+const deg = r => (r*180/Math.PI).toFixed(1);
+function distToSeg(px,py,s){
+  const dx=s[2]-s[0], dy=s[3]-s[1], L=dx*dx+dy*dy;
+  let t = L ? ((px-s[0])*dx+(py-s[1])*dy)/L : 0;
+  t=clamp(t,0,1);
+  return Math.hypot(px-(s[0]+t*dx), py-(s[1]+t*dy));
+}
+
+/* ---------- 每帧生成一个零件的图元 ---------- */
+function buildPart(P, idx, now, boomAdd){
+  const y = st.yaw + st.parX, pi = st.pitch + st.parY, ro = st.roll;
+  const t = now * 0.00017 * st.spin;
+  const pr = {P, alpha:1, depth:0, fill:null, hidden:[], solid:[], bold:[], faint:[],
+              marks:[], circle:null, center:[cx,cy,0], pick:[]};
+  const boom = (st.explode + boomAdd) * P.boom;
+
+  if(P.kind === 'sphere'){
+    const spin = t*0.55;
+    const sph = (u,v) => [P.r*Math.cos(v)*Math.cos(u), P.r*Math.sin(v), P.r*Math.cos(v)*Math.sin(u)];
+    const T = p => proj(rot(rot(p,spin,0,0), y,pi,ro));
+    const push = (a,b,vis) => {
+      const seg=[a[0],a[1],b[0],b[1]];
+      (vis ? pr.solid : pr.hidden).push(seg);
+      pr.pick.push(seg);
+    };
+    for(const vd of [-60,-30,0,30,60]){
+      const v = vd*Math.PI/180;
+      let prev=null, prevZ=0;
+      for(let k=0;k<=48;k++){
+        const p = T(sph(k/48*Math.PI*2, v));
+        const vis = (prevZ+p[2])/2 > 0;
+        if(prev) push(prev,p,vis);
+        prev=p; prevZ=p[2];
+      }
+    }
+    for(let j=0;j<8;j++){
+      const u = j/8*Math.PI*2;
+      let prev=null, prevZ=0;
+      for(let k=0;k<=32;k++){
+        const p = T(sph(u, -Math.PI/2 + k/32*Math.PI));
+        const vis = (prevZ+p[2])/2 > 0;
+        if(prev) push(prev,p,vis);
+        prev=p; prevZ=p[2];
+      }
+    }
+    pr.circle = [cx,cy,P.r*S];
+    pr.depth = 0;
+  } else {
+    const [ty,tp,tr] = P.tilt;
+    const n = rot([0,0,1],ty,tp,tr);
+    // 爆炸 = 沿自身轴向外推 + 沿图纸竖轴分层，让装配关系一眼可读
+    const layer = -(idx-2)*boom*0.78;
+    const off = [n[0]*boom*0.55, n[1]*boom*0.55 + layer, n[2]*boom*0.55];
+    const spin = t*(idx%2 ? -1 : 1)*(idx*0.35+0.6);
+    const T = (u,rad,z) => {
+      const a=u+spin;
+      const p=[rad*Math.cos(a), rad*Math.sin(a), z];
+      const q=rot(p,ty,tp,tr);
+      return proj(rot([q[0]+off[0], q[1]+off[1], q[2]+off[2]], y,pi,ro));
+    };
+    const N=72;
+    const outer=[], inner=[], back=[];
+    for(let k=0;k<=N;k++){
+      const u=k/N*Math.PI*2;
+      outer.push(T(u,P.r+P.t,P.h));
+      inner.push(T(u,P.r-P.t,P.h));
+      back.push(T(u,P.r+P.t,-P.h));
+    }
+    pr.fill=[outer,inner];
+    pr.center = proj(rot(off,y,pi,ro));
+    pr.depth = pr.center[2];
+    const cz = pr.depth;
+    const seg=(a,b)=>[a[0],a[1],b[0],b[1]];
+
+    for(let k=0;k<N;k++){
+      const front = (outer[k][2]+outer[k+1][2])/2 >= cz;
+      const os = seg(outer[k],outer[k+1]);
+      pr.bold.push(os); pr.pick.push(os);
+      const is = seg(inner[k],inner[k+1]);
+      (front ? pr.solid : (st.hidden ? pr.hidden : pr.faint)).push(is);
+      pr.pick.push(is);
+      // 厚度侧边（仅节点处）
+      if(k % (N/4) === 0){
+        const bs = T(k/N*Math.PI*2, P.r+P.t, -P.h);
+        const fs = outer[k];
+        pr.faint.push(seg(fs,bs));
+        pr.marks.push({p:fs, type:'node'});
+      }
+      // 每 15° 一条刻度
+      if(k % 3 === 0){
+        const long = (k % 9 === 0);
+        const r0 = P.r - P.t + (long ? -3 : 2);
+        const a = T(k/N*Math.PI*2, r0, P.h);
+        const b = T(k/N*Math.PI*2, P.r+P.t, P.h);
+        const s = seg(a,b);
+        (front ? pr.solid : pr.faint).push(s);
+      }
+    }
+    // 最外环的角度数字
+    if(P.id === 'R-04'){
+      for(let q=0;q<4;q++){
+        const u=q*Math.PI/2;
+        const p=T(u,P.r+P.t+20,P.h);
+        pr.marks.push({p, type:'text', label:String(q*90).padStart(3,'0')});
+      }
+    }
+    // 爆炸视图的装配引导线（点划线回到原位）
+    if(boom > 4){
+      const origin = proj(rot([0,0,0],y,pi,ro));
+      pr.marks.push({p:pr.center, q:origin, type:'guide'});
+      pr.marks.push({p:origin, type:'origin'});
+    }
+  }
+  return pr;
+}
+
+/* ---------- 绘制工具 ---------- */
+function strokeGroup(segs, color, width, dash){
+  if(!segs || !segs.length) return;
+  ctx.beginPath();
+  for(const s of segs){ ctx.moveTo(s[0],s[1]); ctx.lineTo(s[2],s[3]); }
+  ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineCap='butt'; ctx.lineJoin='round';
+  ctx.setLineDash(dash||[]); ctx.stroke(); ctx.setLineDash([]);
+}
+function poly(pts){
+  ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.closePath();
+}
+function text(str,x,y,size,color,align,angle){
+  ctx.save(); ctx.translate(x,y); if(angle) ctx.rotate(angle);
+  ctx.font=size+'px '+MONO; ctx.fillStyle=color;
+  ctx.textBaseline='middle'; ctx.textAlign=align||'left';
+  ctx.fillText(str,0,0); ctx.restore();
+}
+/* 字宽缓存：spaced() 每帧调用数百次，避免重复的 measureText 布局计算 */
+const charWidthCache = new Map();
+function charW(ch, font){
+  const key = font+'|'+ch;
+  let w = charWidthCache.get(key);
+  if(w === undefined){
+    ctx.font = font;
+    w = ctx.measureText(ch).width;
+    charWidthCache.set(key, w);
+  }
+  return w;
+}
+function spaced(str,x,y,sp,size,color,align){
+  const font = size+'px '+MONO;
+  ctx.font=font; ctx.fillStyle=color;
+  ctx.textBaseline='middle'; ctx.textAlign='left';
+  const chars=[...str];
+  let total=-sp;
+  for(const c of chars) total += charW(c,font) + sp;
+  let xx = align==='right' ? x-total : align==='center' ? x-total/2 : x;
+  for(const c of chars){ ctx.fillText(c,xx,y); xx += charW(c,font) + sp; }
+}
+function arrowHead(x,y,dir,color){
+  ctx.beginPath();
+  ctx.moveTo(x,y); ctx.lineTo(x+dir*7,y-3.2); ctx.lineTo(x+dir*7,y+3.2);
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+
+/* ---------- 图纸底纹 ---------- */
+function drawPaper(){
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  if(st.grid){
+    ctx.beginPath();
+    for(let x=cx%24;x<W;x+=24){ ctx.moveTo(x,0); ctx.lineTo(x,H); }
+    for(let y=cy%24;y<H;y+=24){ ctx.moveTo(0,y); ctx.lineTo(W,y); }
+    ctx.strokeStyle=C.grid; ctx.lineWidth=1; ctx.stroke();
+    ctx.beginPath();
+    for(let x=cx%120;x<W;x+=120){ ctx.moveTo(x,0); ctx.lineTo(x,H); }
+    for(let y=cy%120;y<H;y+=120){ ctx.moveTo(0,y); ctx.lineTo(W,y); }
+    ctx.strokeStyle=C.faint; ctx.lineWidth=.6; ctx.stroke();
+  }
+  // 图框 + 裁切角标
+  const m=16;
+  ctx.strokeStyle=C.line; ctx.lineWidth=1;
+  ctx.strokeRect(m,m,W-2*m,H-2*m);
+  ctx.beginPath();
+  for(const [x,sx] of [[m,1],[W-m,-1]]) for(const [y,sy] of [[m,1],[H-m,-1]]){
+    ctx.moveTo(x+sx*7,y); ctx.lineTo(x+sx*22,y);
+    ctx.moveTo(x,y+sy*7); ctx.lineTo(x,y+sy*22);
+  }
+  ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.stroke();
+  // 页眉
+  spaced('STRUCTURE 01  /  GIMBAL ASSEMBLY', 30, 36, 1.4, 12, C.ink);
+  spaced('ORTHOGRAPHIC STUDY  ·  SHEET 01 / 01', W-30, 36, 1.1, 9, C.soft, 'right');
+  ctx.beginPath(); ctx.moveTo(30,50); ctx.lineTo(W-30,50);
+  ctx.strokeStyle=C.line; ctx.lineWidth=1; ctx.stroke();
+  // 印章
+  ctx.save(); ctx.translate(W-96,74); ctx.rotate(-0.10);
+  ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.globalAlpha=.75;
+  ctx.strokeRect(-42,-13,84,26);
+  spaced('ORIGINAL', 0, 0, 2, 9, C.accent, 'center');
+  ctx.restore(); ctx.globalAlpha=1;
+}
+function drawAxes(){
+  const y=st.yaw+st.parX, pi=st.pitch+st.parY, ro=st.roll;
+  const T = p => proj(rot(p,y,pi,ro));
+  const seg=(a,b)=>[a[0],a[1],b[0],b[1]];
+  const axes=[[[-310,0,0],[310,0,0]],[[0,-290,0],[0,290,0]]];
+  strokeGroup(axes.map(([a,b])=>seg(T(a),T(b))), C.faint, 1, [12,4,2,4]);
+  // 基准地面线 + 剖面短斜线
+  const gy = cy + 272*S;
+  const gl=[[36,gy],[W-36,gy]];
+  strokeGroup(gl,C.line,1);
+  const hatch=[];
+  for(let x=40;x<W-40;x+=13) hatch.push([x,gy,x-6,gy+6]);
+  strokeGroup(hatch,C.faint,.8);
+  spaced('DATUM  ±0.00', 40, gy+16, 1, 9, C.soft);
+}
+function drawPrim(pr){
+  const sel = st.selected === pr.P.id;
+  const ink = sel ? C.accent : C.ink;
+  if(pr.fill && !st.xray){
+    ctx.beginPath(); poly(pr.fill[0]); poly(pr.fill[1].slice().reverse());
+    ctx.fillStyle=C.surface; ctx.fill('evenodd');
+  }
+  if(st.hidden) strokeGroup(pr.hidden, sel?C.accent:C.hidden, .85, [4,4]);
+  strokeGroup(pr.faint, C.faint, .8);
+  strokeGroup(pr.solid, ink, sel?1.45:1.05);
+  strokeGroup(pr.bold, ink, sel?2:1.55);
+  if(pr.circle){
+    ctx.beginPath(); ctx.arc(pr.circle[0],pr.circle[1],pr.circle[2],0,Math.PI*2);
+    ctx.strokeStyle=ink; ctx.lineWidth=sel?2:1.55; ctx.stroke();
+  }
+  for(const m of pr.marks){
+    if(m.type==='node'){
+      ctx.strokeStyle=ink; ctx.lineWidth=1.2;
+      ctx.strokeRect(m.p[0]-3.5,m.p[1]-3.5,7,7);
+    } else if(m.type==='text'){
+      text(m.label,m.p[0],m.p[1],9,C.soft,'center');
+    } else if(m.type==='guide'){
+      strokeGroup([[m.p[0],m.p[1],m.q[0],m.q[1]]], C.accent, .8, [9,4,2,4]);
+    } else if(m.type==='origin'){
+      ctx.strokeStyle=C.accent; ctx.lineWidth=1;
+      ctx.strokeRect(m.p[0]-3,m.p[1]-3,6,6);
+    }
+  }
+}
+function drawSection(prims){
+  if(!st.sectionOn) return;
+  const sy = cy + st.section*2.6*S;
+  strokeGroup([[22,sy],[W-22,sy]], C.accent, 1.3, [9,4,2,4]);
+  const hits=[];
+  for(const pr of prims) for(const g of [pr.solid,pr.bold,pr.hidden]) for(const s of g){
+    if((s[1]-sy)*(s[3]-sy)<0){
+      const t=(sy-s[1])/(s[3]-s[1]);
+      hits.push(s[0]+(s[2]-s[0])*t);
+    }
+  }
+  hits.sort((a,b)=>a-b);
+  const marks=[];
+  let last=-999;
+  for(const x of hits){ if(x-last>7){ marks.push([x,sy-4,x,sy+4]); last=x; } }
+  strokeGroup(marks.slice(0,160), C.accent, 1.4);
+  ctx.fillStyle=C.bg; ctx.fillRect(26,sy-19,108,14);
+  spaced('SECTION A-A', 30, sy-12, 1.1, 9, C.accent);
+  text('A', 34, sy+12, 10, C.accent);
+  text('A', W-34, sy+12, 10, C.accent, 'right');
+}
+function drawDimensions(){
+  const y=cy+300*S, x1=cx-240*S, x2=cx+240*S;
+  strokeGroup([[x1,cy+268*S,x1,y+12],[x2,cy+268*S,x2,y+12],[x1,y,x2,y]], C.line, .9);
+  arrowHead(x1,y,1,C.line); arrowHead(x2,y,-1,C.line);
+  ctx.fillStyle=C.bg; ctx.fillRect(cx-52,y-8,104,16);
+  spaced('Ø 480.00 ±0.05', cx, y, 1, 10, C.ink, 'center');
+  const vx = cx-292*S, vy1=cy-240*S, vy2=cy+240*S;
+  strokeGroup([[vx-12,vy1,vx,vy1],[vx-12,vy2,vx,vy2],[vx,vy1,vx,vy2]], C.line, .9);
+  const vArrow=(x,yy,dir)=>{
+    ctx.beginPath(); ctx.moveTo(x,yy); ctx.lineTo(x-3.2,yy+dir*7); ctx.lineTo(x+3.2,yy+dir*7);
+    ctx.closePath(); ctx.fillStyle=C.line; ctx.fill();
+  };
+  vArrow(vx,vy1,1); vArrow(vx,vy2,-1);
+  ctx.fillStyle=C.bg; ctx.fillRect(vx-9,cy-34,18,68);
+  text('H 480.00', vx-4, cy, 10, C.ink, 'center', -Math.PI/2);
+  // 角度扇形（量角器）
+  const ax=cx+300*S, ay=cy+188*S, ar=42;
+  const raw = st.yaw + st.parX;
+  const a = Math.atan2(Math.sin(raw), Math.cos(raw));
+  ctx.beginPath(); ctx.moveTo(ax,ay); ctx.arc(ax,ay,ar,0,a,a<0); ctx.closePath();
+  ctx.fillStyle=C.accent; ctx.globalAlpha=.075; ctx.fill(); ctx.globalAlpha=1;
+  ctx.beginPath(); ctx.arc(ax,ay,ar,0,a,a<0);
+  ctx.strokeStyle=C.accent; ctx.lineWidth=1.4; ctx.stroke();
+  strokeGroup([[ax,ay,ax+ar,ay],[ax,ay,ax+Math.cos(a)*ar,ay+Math.sin(a)*ar]], C.accent, .8);
+  ctx.beginPath(); ctx.arc(ax,ay,2.2,0,Math.PI*2); ctx.fillStyle=C.accent; ctx.fill();
+  spaced('YAW θ '+deg(a)+'°', ax, ay+ar+17, 1, 10, C.accent, 'center');
+}
+function drawLeaders(prims){
+  const byId={}; for(const pr of prims) byId[pr.P.id]=pr;
+  const items = PARTS.map((P,i)=>{
+    const pr=byId[P.id];
+    const side = (i%2===0) ? -1 : 1;
+    const x = pr.center[0] + side*(P.r*S*0.80);
+    return {P,pr,side,x,y:pr.center[1],ly:0};
+  });
+  for(const side of [-1,1]){
+    const arr=items.filter(i=>i.side===side).sort((a,b)=>a.y-b.y);
+    const cap = (side===1 && W<720) ? H*0.52 : H-150;
+    let prev=70;
+    for(const it of arr){ it.ly=Math.max(clamp(it.y,80,cap),prev+50); prev=it.ly; }
+    const over=arr.length?arr[arr.length-1].ly-cap:0;
+    if(over>0) for(const it of arr) it.ly-=over;
+  }
+  for(const it of items){
+    const sel=st.selected===it.P.id;
+    const col=sel?C.accent:C.soft;
+    // 桌面端右侧标签收在控制台左侧，避免被面板遮住
+    const lx=it.side<0 ? 34 : (W<720 ? W-34 : W-300);
+    const p0=[it.x,it.y], p1=[it.x+it.side*24,it.y], p2=[lx,it.ly-13];
+    // 先用纸色擦出标签底，再画引线，避免引线被文字底板截断
+    ctx.fillStyle=C.bg; ctx.fillRect(it.side<0?lx:lx-186, it.ly-20, 186, 30);
+    strokeGroup([[p0[0],p0[1],p1[0],p1[1]],[p1[0],p1[1],p2[0],p2[1]],[p2[0],p2[1],p2[0],p2[1]+7]], col, .8);
+    ctx.beginPath(); ctx.arc(p0[0],p0[1],2.6,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.beginPath(); ctx.arc(p0[0],p0[1],5.5,0,Math.PI*2);
+    ctx.strokeStyle=col; ctx.lineWidth=.7; ctx.stroke();
+    spaced(it.P.id+'  '+it.P.name, lx, it.ly, 1, 9.5, sel?C.accent:C.ink, it.side<0?'left':'right');
+    spaced(it.P.spec[0]+'   ·   '+it.P.spec[5], lx, it.ly+13, .8, 8.5, C.soft, it.side<0?'left':'right');
+  }
+}
+function drawHUD(prims){
+  // 左上实时读数
+  const mx=st.mx<0?cx:st.mx, my=st.my<0?cy:st.my;
+  spaced('X '+String(Math.round(mx)).padStart(4,'0')+'   Y '+String(Math.round(my)).padStart(4,'0'), 30, 78, 1.1, 10, C.ink);
+  spaced('θ '+deg(st.yaw+st.parX)+'°   φ '+deg(st.pitch+st.parY)+'°', 30, 95, 1.1, 10, C.soft);
+  spaced('PROJ. ORTHOGRAPHIC   ·   UNIT mm   ·   SCALE 1:'+(1/st.zoom).toFixed(2), 30, 112, 1, 9, C.soft);
+  const boom = st.explode>0.01 ? 'EXPLODED '+(st.explode*100).toFixed(0)+'%' : 'ASSEMBLED';
+  spaced('STATE  '+boom, 30, 129, 1, 9, C.accent);
+  // 十字准星
+  if(st.mx>0){
+    ctx.strokeStyle=C.accent; ctx.globalAlpha=.55; ctx.lineWidth=.8;
+    ctx.beginPath();
+    ctx.moveTo(st.mx-11,st.my); ctx.lineTo(st.mx-4,st.my);
+    ctx.moveTo(st.mx+4,st.my); ctx.lineTo(st.mx+11,st.my);
+    ctx.moveTo(st.mx,st.my-11); ctx.lineTo(st.mx,st.my-4);
+    ctx.moveTo(st.mx,st.my+4); ctx.lineTo(st.mx,st.my+11);
+    ctx.stroke(); ctx.globalAlpha=1;
+  }
+  // 标题栏
+  const bw=246, bh=72, bx=28, by=H-bh-30;
+  ctx.fillStyle=C.bg; ctx.fillRect(bx,by,bw,bh);
+  ctx.strokeStyle=C.line; ctx.lineWidth=1; ctx.strokeRect(bx,by,bw,bh);
+  ctx.beginPath();
+  ctx.moveTo(bx,by+28); ctx.lineTo(bx+bw,by+28);
+  ctx.moveTo(bx,by+50); ctx.lineTo(bx+bw,by+50);
+  ctx.moveTo(bx+112,by+28); ctx.lineTo(bx+112,by+50);
+  ctx.moveTo(bx+182,by+28); ctx.lineTo(bx+182,by+50);
+  ctx.stroke();
+  spaced('GIMBAL ASSEMBLY  /  01', bx+9, by+14, 1.1, 10, C.ink);
+  spaced('1ST ANGLE', bx+9, by+39, .7, 8.5, C.soft);
+  spaced('SCALE 1:1', bx+120, by+39, .7, 8.5, C.soft);
+  spaced('REV 03', bx+190, by+39, .7, 8.5, C.accent);
+  spaced('DRAWN  WORKBUDDY', bx+9, by+61, .8, 8.5, C.soft);
+  spaced('2026.11.10', bx+bw-9, by+61, .8, 8.5, C.soft, 'right');
+  // 底部提示
+  spaced('DRAG ORBIT   ·   WHEEL EXPLODE   ·   SHIFT+WHEEL ZOOM   ·   CLICK INSPECT   ·   T THEME   ·   S EXPORT PNG', cx, H-32, .8, 9.5, C.soft, 'center');
+}
+
+/* ---------- 主循环 ---------- */
+let lastPrims=[], frameCount=0;
+function draw(now){
+  S = baseS*st.zoom;
+  frameCount++;
+  // 双进度取较大值：墙钟 + 帧计数，后台标签页 / 无头渲染都不会把装配动画卡在半途
+  const intro = st.t0<0 ? 1 : Math.max(
+    clamp((Date.now()-st.t0)/CFG.introMs,0,1),
+    clamp(frameCount/CFG.introFrames,0,1)
+  );
+  const ease = 1-Math.pow(1-intro,3);
+  const boomAdd = (1-ease)*0.92;
+  drawPaper();
+  drawAxes();
+  const prims = PARTS.map((P,i)=>{
+    const pr=buildPart(P,i,now,boomAdd);
+    pr.alpha = clamp((intro*2.2 - i*0.16)/0.5,0,1);
+    return pr;
+  }).sort((a,b)=>a.depth-b.depth);
+  for(const pr of prims){ ctx.save(); ctx.globalAlpha=pr.alpha; drawPrim(pr); ctx.restore(); }
+  drawSection(prims);
+  drawDimensions();
+  drawLeaders(prims);
+  drawHUD(prims);
+  lastPrims=prims;
+}
+function frame(now){
+  requestAnimationFrame(frame);
+  if(document.hidden) return;                 // 后台标签页停止绘制，回到前台自动恢复
+  if(!st.paused){
+    if(!st.dragging && !RM){
+      st.yaw += st.velY; st.pitch += st.velP;
+      st.velY *= CFG.inertia; st.velP *= CFG.inertia;
+    }
+    if(st.auto) st.yaw += CFG.autoSpin*st.spin;
+  }
+  st.parX += (st.tarX-st.parX)*CFG.parallaxEase;
+  st.parY += (st.tarY-st.parY)*CFG.parallaxEase;
+  st.pitch = clamp(st.pitch,-1.35,1.35);
+  draw(now);
+}
+
+/* ---------- 交互 ---------- */
+function pick(px,py){
+  let best=null, bd=CFG.pickRadius;
+  for(const pr of lastPrims){
+    for(const g of [pr.solid,pr.bold]) for(const s of g){
+      const d=distToSeg(px,py,s);
+      if(d<bd){ bd=d; best=pr.P.id; }
+    }
+  }
+  return best;
+}
+function updateSpec(){
+  const P=PARTS.find(p=>p.id===st.selected);
+  $('specEmpty').style.display = P?'none':'block';
+  $('specRows').style.display = P?'grid':'none';
+  if(!P){ $('specId').textContent='—'; $('specName').textContent='NO SELECTION'; return; }
+  $('specId').textContent=P.id;
+  $('specName').textContent=P.name;
+  $('specRows').innerHTML=P.spec.map(v=>'<span>'+v+'</span>').join('');
+}
+cv.addEventListener('pointerdown',e=>{
+  st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
+  st.downX=e.clientX; st.downY=e.clientY;
+  st.velY=st.velP=0; cv.classList.add('dragging');
+  try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+});
+cv.addEventListener('pointermove',e=>{
+  st.mx=e.clientX; st.my=e.clientY;
+  st.tarX=(e.clientX/W-.5)*CFG.followYaw;
+  st.tarY=(e.clientY/H-.5)*CFG.followPitch;
+  if(st.dragging){
+    const dx=e.clientX-st.lx, dy=e.clientY-st.ly;
+    st.yaw += dx*CFG.dragSpeed; st.pitch -= dy*CFG.dragSpeed;
+    st.velY=dx*CFG.dragSpeed; st.velP=-dy*CFG.dragSpeed;
+    st.lx=e.clientX; st.ly=e.clientY;
+  }
+});
+cv.addEventListener('pointerup',e=>{
+  st.dragging=false; cv.classList.remove('dragging');
+  if(Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
+    st.selected=pick(e.clientX,e.clientY); updateSpec();
+  }
+});
+cv.addEventListener('pointerleave',()=>{ st.mx=st.my=-999; st.tarX=st.tarY=0; });
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  if(e.shiftKey){
+    st.zoom=clamp(st.zoom*(1-e.deltaY*CFG.wheelZoom),.55,2);
+    $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+  }else{
+    st.explode=clamp(st.explode+e.deltaY*CFG.wheelExplode,0,1);
+    $('explode').value=Math.round(st.explode*100); $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
+  }
+},{passive:false});
+
+const bindRange=(id,f)=>{ $(id).addEventListener('input',e=>f(+e.target.value)); };
+bindRange('explode',v=>{ st.explode=v/100; $('vExplode').textContent=String(v).padStart(2,'0')+'%'; });
+bindRange('section',v=>{ st.section=v; st.sectionOn=true; syncToggles(); $('vSection').textContent=(v>=0?'+':'')+v; });
+bindRange('spin',v=>{ st.spin=v/100; $('vSpin').textContent=(v/100).toFixed(2); });
+bindRange('zoom',v=>{ st.zoom=v/100; $('vZoom').textContent=v+'%'; });
+
+function syncToggles(){
+  document.querySelectorAll('.tg[data-k]').forEach(b=>{
+    b.classList.toggle('on', !!st[b.dataset.k]);
+  });
+  $('vSection').textContent = st.sectionOn ? ((st.section>=0?'+':'')+st.section) : 'OFF';
+}
+document.querySelectorAll('.tg[data-k]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.k; st[k]=!st[k]; syncToggles();
+}));
+function cycleTheme(){
+  st.themeIdx=(st.themeIdx+1)%THEMES.length;
+  document.documentElement.dataset.theme=THEMES[st.themeIdx];
+  readTheme();
+  $('btnTheme').textContent=THEME_LABEL[THEMES[st.themeIdx]];
+}
+function reset(){
+  st.yaw=-0.62; st.pitch=0.36; st.roll=0.02;
+  st.velY=st.velP=st.parX=st.parY=st.tarX=st.tarY=0;
+  st.explode=0; st.section=0; st.zoom=1; st.spin=1; st.selected=null;
+  st.xray=false; st.sectionOn=false; st.paused=false;
+  $('explode').value=0; $('section').value=0; $('spin').value=100; $('zoom').value=100;
+  $('vExplode').textContent='00%'; $('vSpin').textContent='1.00'; $('vZoom').textContent='100%';
+  syncToggles(); updateSpec();
+}
+function shuffle(){
+  st.yaw=(Math.random()-.5)*3;
+  st.pitch=(Math.random()-.5)*1.7;
+  st.roll=(Math.random()-.5)*.4;
+  st.velY=(Math.random()-.5)*.012;
+  st.velP=(Math.random()-.5)*.008;
+  st.t0=-1e9;
+}
+function savePNG(){
+  const download = url => {
+    const a=document.createElement('a');
+    a.href=url; a.download='structure-01-gimbal.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    if(url.indexOf('blob:')===0) setTimeout(()=>URL.revokeObjectURL(url),3000);
+  };
+  try{
+    if(cv.toBlob){
+      cv.toBlob(b => download(b ? URL.createObjectURL(b) : cv.toDataURL('image/png')), 'image/png');
+    }else{
+      download(cv.toDataURL('image/png'));
+    }
+  }catch(err){
+    console.warn('PNG export unavailable:', err);
+  }
+}
+$('btnTheme').addEventListener('click',cycleTheme);
+$('btnReset').addEventListener('click',reset);
+$('btnShuffle').addEventListener('click',shuffle);
+$('btnPng').addEventListener('click',savePNG);
+$('fold').addEventListener('click',()=>{
+  const p=$('panel'); p.classList.toggle('folded');
+  $('fold').innerHTML=p.classList.contains('folded')?'+':'&#8722;';
+});
+window.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='t') cycleTheme();
+  else if(k==='r') reset();
+  else if(k==='s') savePNG();
+  else if(k==='f') shuffle();
+  else if(k===' '){ st.paused=!st.paused; syncToggles(); e.preventDefault(); }
+  else if(k==='h'){ st.hidden=!st.hidden; syncToggles(); }
+  else if(k==='g'){ st.grid=!st.grid; syncToggles(); }
+});
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',resize);
+
+/* ---------- URL 参数：可分享的视图状态 ?theme=ink&explode=45&section=20&yaw=0.8 ---------- */
+function applyQuery(){
+  const q=new URLSearchParams(location.search);
+  const ti=THEMES.indexOf(q.get('theme'));
+  if(ti>=0){ st.themeIdx=ti; document.documentElement.dataset.theme=THEMES[ti]; readTheme(); $('btnTheme').textContent=THEME_LABEL[THEMES[ti]]; }
+  if(q.has('explode')){
+    st.explode=clamp(parseFloat(q.get('explode'))/100||0,0,1);
+    $('explode').value=Math.round(st.explode*100);
+    $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
+  }
+  if(q.has('section')){
+    st.section=clamp(parseFloat(q.get('section'))||0,-100,100);
+    $('section').value=st.section; st.sectionOn=true;
+  }
+  if(q.has('zoom')){ st.zoom=clamp(parseFloat(q.get('zoom'))/100||1,.55,2); $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%'; }
+  if(q.has('yaw')) st.yaw=parseFloat(q.get('yaw'))||st.yaw;
+  if(q.has('pitch')) st.pitch=clamp(parseFloat(q.get('pitch'))||0,-1.35,1.35);
+  if(q.get('xray')==='1') st.xray=true;
+  if(q.get('intro')==='0') st.t0=-1e9;
+  if(q.get('auto')==='0') st.auto=false;
+  if(q.get('part')) st.selected=q.get('part');
+  syncToggles(); updateSpec();
+}
+/* ---------- 调试 / 自动化接口 ---------- */
+window.__STRUCTURE__ = {
+  get state(){ return Object.assign({}, st); },
+  set(patch){ Object.assign(st, patch||{}); syncToggles(); updateSpec(); },
+  parts: PARTS.map(p => ({id:p.id, name:p.name, spec:p.spec.slice()})),
+  reset, shuffle, cycleTheme, exportPNG: savePNG
+};
+readTheme(); resize(); applyQuery(); syncToggles(); updateSpec();
+if(W<720){ $('panel').classList.add('folded'); $('fold').textContent='+'; }
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
