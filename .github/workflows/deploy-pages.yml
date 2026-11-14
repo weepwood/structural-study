@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -29,7 +31,11 @@ jobs:
       - name: Validate project
         run: node scripts/verify.mjs
 
+      - name: Test preview routes and access rules
+        run: npm test
+
       - name: Build Pages artifact
+        if: github.event_name != 'pull_request'
         run: |
           mkdir -p _site
           cp index.html skill.html _site/
@@ -39,14 +45,17 @@ jobs:
           touch _site/.nojekyll
 
       - name: Configure Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

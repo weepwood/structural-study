@@ -44,6 +44,8 @@ body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",mo
   font-size:10px;letter-spacing:.06em;
 }
 .panel.folded{width:150px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .panel.folded .panel-body{display:none}
 .panel-head{
   display:flex;align-items:center;justify-content:space-between;
@@ -95,8 +97,24 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
 .skill a:hover{color:var(--accent);border-color:var(--accent)}
 .skill a + a{margin-top:5px}
 @media (max-width:720px){
-  .panel{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:210px;font-size:9px}
+  .panel{left:12px;right:12px;bottom:max(10px,env(safe-area-inset-bottom));width:auto;
+    max-height:min(72dvh,650px);overflow-y:auto;overscroll-behavior:contain;font-size:11px}
+  .panel.folded{left:auto;right:max(12px,env(safe-area-inset-right));top:62px;bottom:auto;
+    width:146px;max-height:none;overflow:visible}
+  .panel-head{min-height:44px;padding:6px 10px}
+  .mini{width:32px;height:32px;line-height:28px;font-size:16px}
+  .row{margin-bottom:8px}
+  input[type=range]{height:32px}
+  input[type=range]::-webkit-slider-thumb{width:18px;height:18px;margin-top:-8px}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px}
+  .tg{min-height:36px;font-size:11px}
+  .btns .tg{min-height:38px;font-size:10px}
+  .skill a{min-height:34px;display:flex;align-items:center;justify-content:center}
 }
+@media (max-height:520px) and (max-width:960px){
+  .panel:not(.folded){max-height:82dvh}
+}
+
 </style>
 </head>
 <body>
@@ -104,12 +122,12 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
 <noscript><div class="fallback">This drawing requires JavaScript.<br>请开启 JavaScript 以查看交互式结构图。</div></noscript>
 
 <div class="panel" id="panel">
-  <div class="panel-head"><span>CONTROL / 控制台</span><button class="mini" id="fold" title="折叠">&#8722;</button></div>
+  <div class="panel-head"><span>CONTROL / 控制台</span><button class="mini" id="fold" title="折叠" aria-controls="panelBody" aria-expanded="true" aria-label="折叠控制台">&#8722;</button></div>
   <div class="panel-body" id="panelBody">
-    <div class="row"><label>EXPLODE <em>拆解</em><span class="val" id="vExplode">00%</span></label><input type="range" id="explode" min="0" max="100" value="0"></div>
-    <div class="row"><label>SECTION <em>剖切</em><span class="val" id="vSection">OFF</span></label><input type="range" id="section" min="-100" max="100" value="0"></div>
-    <div class="row"><label>SPIN <em>自转</em><span class="val" id="vSpin">1.00</span></label><input type="range" id="spin" min="0" max="200" value="100"></div>
-    <div class="row"><label>SCALE <em>比例</em><span class="val" id="vZoom">100%</span></label><input type="range" id="zoom" min="55" max="200" value="100"></div>
+    <div class="row"><label for="explode">EXPLODE <em>拆解</em><span class="val" id="vExplode">00%</span></label><input type="range" id="explode" min="0" max="100" value="0"></div>
+    <div class="row"><label for="section">SECTION <em>剖切</em><span class="val" id="vSection">OFF</span></label><input type="range" id="section" min="-100" max="100" value="0"></div>
+    <div class="row"><label for="spin">SPIN <em>自转</em><span class="val" id="vSpin">1.00</span></label><input type="range" id="spin" min="0" max="200" value="100"></div>
+    <div class="row"><label for="zoom">SCALE <em>比例</em><span class="val" id="vZoom">100%</span></label><input type="range" id="zoom" min="55" max="200" value="100"></div>
     <div class="toggles">
       <button class="tg on" data-k="hidden" title="隐藏虚线">HIDDEN</button>
       <button class="tg on" data-k="grid" title="图纸网格">GRID</button>
@@ -123,9 +141,10 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
       <button class="tg" id="btnReset">RESET</button>
       <button class="tg" id="btnShuffle">SHUFFLE</button>
       <button class="tg" id="btnPng">PNG</button>
+      <button class="tg" id="btnShare" title="复制当前视角链接">SHARE</button>
     </div>
     <div class="spec">
-      <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName">NO SELECTION</span></div>
+      <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName" aria-live="polite">NO SELECTION</span></div>
       <div class="spec-empty" id="specEmpty">点击线段选取零件 · 查看规格<br>DRAG 旋转 / WHEEL 拆解 / T 切主题</div>
       <div class="spec-rows" id="specRows" style="display:none"></div>
     </div>
@@ -135,6 +154,7 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
     </div>
   </div>
 </div>
+<div class="sr-only" id="a11yStatus" role="status" aria-live="polite"></div>
 
 <script>
 (() => {
@@ -172,7 +192,9 @@ function readTheme(){
 }
 
 let W=0, H=0, DPR=1, baseS=1, S=1, cx=0, cy=0;
+let lastRenderKey = '';
 function resize(){
+  lastRenderKey = ''; // canvas 尺寸变化会清空位图，即使 CSS 尺寸未变化
   DPR = Math.min(2, window.devicePixelRatio || 1);
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
@@ -225,7 +247,7 @@ function distToSeg(px,py,s){
 /* ---------- 每帧生成一个零件的图元 ---------- */
 function buildPart(P, idx, now, boomAdd){
   const y = st.yaw + st.parX, pi = st.pitch + st.parY, ro = st.roll;
-  const t = now * 0.00017 * st.spin;
+  const t = now * 0.00017; // 自转倍速在动画时钟推进时应用，调速不会引发角度跳变
   const pr = {P, alpha:1, depth:0, fill:null, hidden:[], solid:[], bold:[], faint:[],
               marks:[], circle:null, center:[cx,cy,0], pick:[]};
   const boom = (st.explode + boomAdd) * P.boom;
@@ -401,16 +423,21 @@ function drawPaper(){
   }
   ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.stroke();
   // 页眉
-  spaced('STRUCTURE 01  /  GIMBAL ASSEMBLY', 30, 36, 1.4, 12, C.ink);
-  spaced('ORTHOGRAPHIC STUDY  ·  SHEET 01 / 01', W-30, 36, 1.1, 9, C.soft, 'right');
+  if(W<720) spaced('STRUCTURE 01 / GIMBAL', 25, 36, .6, 10.5, C.ink);
+  else {
+    spaced('STRUCTURE 01  /  GIMBAL ASSEMBLY', 30, 36, 1.4, 12, C.ink);
+    spaced('ORTHOGRAPHIC STUDY  ·  SHEET 01 / 01', W-30, 36, 1.1, 9, C.soft, 'right');
+  }
   ctx.beginPath(); ctx.moveTo(30,50); ctx.lineTo(W-30,50);
   ctx.strokeStyle=C.line; ctx.lineWidth=1; ctx.stroke();
-  // 印章
+  // 印章：窄屏只保留标题，避免与折叠控件重叠。
+  if(W>=720){
   ctx.save(); ctx.translate(W-96,74); ctx.rotate(-0.10);
   ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.globalAlpha=.75;
   ctx.strokeRect(-42,-13,84,26);
   spaced('ORIGINAL', 0, 0, 2, 9, C.accent, 'center');
   ctx.restore(); ctx.globalAlpha=1;
+  }
 }
 function drawAxes(){
   const y=st.yaw+st.parX, pi=st.pitch+st.parY, ro=st.roll;
@@ -420,7 +447,7 @@ function drawAxes(){
   strokeGroup(axes.map(([a,b])=>seg(T(a),T(b))), C.faint, 1, [12,4,2,4]);
   // 基准地面线 + 剖面短斜线
   const gy = cy + 272*S;
-  const gl=[[36,gy],[W-36,gy]];
+  const gl=[[36,gy,W-36,gy]];
   strokeGroup(gl,C.line,1);
   const hatch=[];
   for(let x=40;x<W-40;x+=13) hatch.push([x,gy,x-6,gy+6]);
@@ -483,6 +510,7 @@ function drawDimensions(){
   arrowHead(x1,y,1,C.line); arrowHead(x2,y,-1,C.line);
   ctx.fillStyle=C.bg; ctx.fillRect(cx-52,y-8,104,16);
   spaced('Ø 480.00 ±0.05', cx, y, 1, 10, C.ink, 'center');
+  if(W<720) return; // 小屏省略竖向尺寸线与量角器，保证主体的可读性
   const vx = cx-292*S, vy1=cy-240*S, vy2=cy+240*S;
   strokeGroup([[vx-12,vy1,vx,vy1],[vx-12,vy2,vx,vy2],[vx,vy1,vx,vy2]], C.line, .9);
   const vArrow=(x,yy,dir)=>{
@@ -533,11 +561,29 @@ function drawLeaders(prims){
     ctx.fillStyle=col; ctx.fill();
     ctx.beginPath(); ctx.arc(p0[0],p0[1],5.5,0,Math.PI*2);
     ctx.strokeStyle=col; ctx.lineWidth=.7; ctx.stroke();
-    spaced(it.P.id+'  '+it.P.name, lx, it.ly, 1, 9.5, sel?C.accent:C.ink, it.side<0?'left':'right');
-    spaced(it.P.spec[0]+'   ·   '+it.P.spec[5], lx, it.ly+13, .8, 8.5, C.soft, it.side<0?'left':'right');
+    const shortName=it.P.name.replace('GIMBAL ','').replace(' SPHERE','');
+    spaced(W<720 ? it.P.id+' '+shortName : it.P.id+'  '+it.P.name,
+      lx, it.ly, W<720?.25:1, W<720?9:9.5, sel?C.accent:C.ink, it.side<0?'left':'right');
+    spaced(W<720 ? it.P.spec[0] : it.P.spec[0]+'   ·   '+it.P.spec[5],
+      lx, it.ly+13, W<720?.2:.8, W<720?8:8.5, C.soft, it.side<0?'left':'right');
   }
 }
 function drawHUD(prims){
+  // 窄屏保留最有用的状态，避免文字叠在控制台和装配体上。
+  if(W<720){
+    spaced('YAW '+deg(st.yaw+st.parX)+'°  PITCH '+deg(st.pitch+st.parY)+'°',
+      25,74,.25,8.5,C.soft);
+    spaced('EXPLODE '+(st.explode*100).toFixed(0)+'%  ZOOM '+(st.zoom*100).toFixed(0)+'%',
+      25,90,.25,8.5,C.accent);
+    const bw=246,bh=65,bx=22,by=H-bh-18;
+    ctx.fillStyle=C.bg; ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=C.line;ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+    strokeGroup([[bx,by+28,bx+bw,by+28],[bx,by+47,bx+bw,by+47]],C.line,.8);
+    spaced('GIMBAL ASSEMBLY / 01',bx+9,by+14,.6,9,C.ink);
+    spaced('PROJ. ORTHOGRAPHIC  ·  REV 03',bx+9,by+38,.2,8,C.soft);
+    spaced('DRAG ORBIT   ·   PINCH ZOOM',bx+9,by+56,.4,8,C.accent);
+    return;
+  }
   // 左上实时读数
   const mx=st.mx<0?cx:st.mx, my=st.my<0?cy:st.my;
   spaced('X '+String(Math.round(mx)).padStart(4,'0')+'   Y '+String(Math.round(my)).padStart(4,'0'), 30, 78, 1.1, 10, C.ink);
@@ -601,20 +647,44 @@ function draw(now){
   drawHUD(prims);
   lastPrims=prims;
 }
+let lastFrameAt = null;
+let motionTime = 0;
 function frame(now){
   requestAnimationFrame(frame);
-  if(document.hidden) return;                 // 后台标签页停止绘制，回到前台自动恢复
-  if(!st.paused){
-    if(!st.dragging && !RM){
-      st.yaw += st.velY; st.pitch += st.velP;
-      st.velY *= CFG.inertia; st.velP *= CFG.inertia;
+  // rAF 的时间戳只用于计算增量。后台恢复时限制单帧跨度，避免突然跳动。
+  if(document.hidden){ lastFrameAt=now; lastRenderKey=''; return; }
+  const dt = lastFrameAt === null ? 0 : clamp(now-lastFrameAt,0,50);
+  lastFrameAt = now;
+  const step = dt/(1000/60);
+  if(!st.paused && !RM){
+    // 仅推进自己的动画时钟：暂停 / 切后台 / 减少动态效果时零件不再暗中转动。
+    motionTime += dt*st.spin;
+    if(!st.dragging){
+      st.yaw += st.velY*step; st.pitch += st.velP*step;
+      st.velY *= Math.pow(CFG.inertia,step);
+      st.velP *= Math.pow(CFG.inertia,step);
+      if(Math.abs(st.velY)<0.00001) st.velY=0;
+      if(Math.abs(st.velP)<0.00001) st.velP=0;
     }
-    if(st.auto) st.yaw += CFG.autoSpin*st.spin;
+    if(st.auto) st.yaw += CFG.autoSpin*st.spin*step;
   }
-  st.parX += (st.tarX-st.parX)*CFG.parallaxEase;
-  st.parY += (st.tarY-st.parY)*CFG.parallaxEase;
+  const ease = (RM || st.paused) ? 1 : 1-Math.pow(1-CFG.parallaxEase,step);
+  st.parX += (st.tarX-st.parX)*ease;
+  st.parY += (st.tarY-st.parY)*ease;
+  if(Math.abs(st.tarX-st.parX)<0.00001) st.parX=st.tarX;
+  if(Math.abs(st.tarY-st.parY)<0.00001) st.parY=st.tarY;
   st.pitch = clamp(st.pitch,-1.35,1.35);
-  draw(now);
+  // 在静止帧跳过复杂的多环构图与文字排版；状态变化和入场动画仍会重绘。
+  const key = [
+    W,H,DPR,motionTime,st.yaw,st.pitch,st.roll,st.parX,st.parY,st.mx,st.my,
+    st.explode,st.zoom,st.section,st.hidden,st.grid,st.xray,st.sectionOn,
+    st.selected,st.themeIdx,st.paused,st.t0
+  ].join('|');
+  const introActive = st.t0>=0 && Date.now()-st.t0<CFG.introMs && frameCount<CFG.introFrames;
+  if(introActive || key!==lastRenderKey){
+    draw(motionTime);
+    lastRenderKey=key;
+  }
 }
 
 /* ---------- 交互 ---------- */
@@ -637,35 +707,90 @@ function updateSpec(){
   $('specName').textContent=P.name;
   $('specRows').innerHTML=P.spec.map(v=>'<span>'+v+'</span>').join('');
 }
+const pointers = new Map();
+let gestureHadMultiple = false;
+let pinchStartDistance = 0;
+let pinchStartZoom = 1;
+function pointerDistance(){
+  const [a,b]=[...pointers.values()];
+  return a&&b ? Math.hypot(a.x-b.x,a.y-b.y) : 0;
+}
+function syncZoomControl(){
+  $('zoom').value=Math.round(st.zoom*100);
+  $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+}
+function beginPinch(){
+  gestureHadMultiple=true;
+  st.dragging=false;
+  st.velY=st.velP=0;
+  pinchStartDistance=Math.max(1,pointerDistance());
+  pinchStartZoom=st.zoom;
+  cv.classList.remove('dragging');
+}
 cv.addEventListener('pointerdown',e=>{
-  st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
-  st.downX=e.clientX; st.downY=e.clientY;
-  st.velY=st.velP=0; cv.classList.add('dragging');
+  if(e.pointerType==='mouse' && e.button!==0) return;
+  if(pointers.has(e.pointerId)) return;
+  // 每个活跃指针独立保存，第二根手指可立即进入捏合缩放。
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+  if(pointers.size===1){
+    gestureHadMultiple=false;
+    st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
+    st.downX=e.clientX; st.downY=e.clientY;
+    st.velY=st.velP=0; cv.classList.add('dragging');
+  }else if(pointers.size===2) beginPinch();
+  else { gestureHadMultiple=true; st.dragging=false; }
 });
 cv.addEventListener('pointermove',e=>{
-  st.mx=e.clientX; st.my=e.clientY;
-  st.tarX=(e.clientX/W-.5)*CFG.followYaw;
-  st.tarY=(e.clientY/H-.5)*CFG.followPitch;
-  if(st.dragging){
+  if(e.pointerType==='mouse'){
+    st.mx=e.clientX; st.my=e.clientY;
+    st.tarX=(e.clientX/W-.5)*CFG.followYaw;
+    st.tarY=(e.clientY/H-.5)*CFG.followPitch;
+  }
+  const current=pointers.get(e.pointerId);
+  if(!current) return;
+  current.x=e.clientX; current.y=e.clientY;
+  if(pointers.size===2){
+    st.zoom=clamp(pinchStartZoom*pointerDistance()/pinchStartDistance,.55,2);
+    syncZoomControl();
+  }else if(pointers.size===1 && st.dragging){
     const dx=e.clientX-st.lx, dy=e.clientY-st.ly;
     st.yaw += dx*CFG.dragSpeed; st.pitch -= dy*CFG.dragSpeed;
     st.velY=dx*CFG.dragSpeed; st.velP=-dy*CFG.dragSpeed;
     st.lx=e.clientX; st.ly=e.clientY;
   }
 });
-cv.addEventListener('pointerup',e=>{
-  st.dragging=false; cv.classList.remove('dragging');
-  if(Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
+function finishPointer(e,cancelled){
+  if(!pointers.has(e.pointerId)) return;
+  const wasSingle=pointers.size===1;
+  pointers.delete(e.pointerId);
+  try{ if(cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId); }catch(err){}
+  if(!cancelled && wasSingle && !gestureHadMultiple &&
+     Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
     st.selected=pick(e.clientX,e.clientY); updateSpec();
+    if(W<720 && st.selected) setPanelFolded(false);
   }
+  if(pointers.size===1){
+    const remaining=[...pointers.values()][0];
+    st.dragging=true; st.lx=st.downX=remaining.x; st.ly=st.downY=remaining.y;
+    st.velY=st.velP=0; cv.classList.add('dragging');
+  }else if(pointers.size===2) beginPinch();
+  else {
+    st.dragging=false; cv.classList.remove('dragging');
+    if(pointers.size===0) gestureHadMultiple=false;
+  }
+}
+cv.addEventListener('pointerup',e=>finishPointer(e,false));
+cv.addEventListener('pointercancel',e=>finishPointer(e,true));
+cv.addEventListener('lostpointercapture',e=>finishPointer(e,true));
+cv.addEventListener('pointerleave',e=>{
+  if(e.pointerType==='mouse'){ st.mx=st.my=-999; st.tarX=st.tarY=0; }
 });
-cv.addEventListener('pointerleave',()=>{ st.mx=st.my=-999; st.tarX=st.tarY=0; });
 cv.addEventListener('wheel',e=>{
   e.preventDefault();
   if(e.shiftKey){
     st.zoom=clamp(st.zoom*(1-e.deltaY*CFG.wheelZoom),.55,2);
-    $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+    syncZoomControl();
   }else{
     st.explode=clamp(st.explode+e.deltaY*CFG.wheelExplode,0,1);
     $('explode').value=Math.round(st.explode*100); $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
@@ -681,6 +806,7 @@ bindRange('zoom',v=>{ st.zoom=v/100; $('vZoom').textContent=v+'%'; });
 function syncToggles(){
   document.querySelectorAll('.tg[data-k]').forEach(b=>{
     b.classList.toggle('on', !!st[b.dataset.k]);
+    b.setAttribute('aria-pressed', String(!!st[b.dataset.k]));
   });
   $('vSection').textContent = st.sectionOn ? ((st.section>=0?'+':'')+st.section) : 'OFF';
 }
@@ -731,11 +857,56 @@ $('btnTheme').addEventListener('click',cycleTheme);
 $('btnReset').addEventListener('click',reset);
 $('btnShuffle').addEventListener('click',shuffle);
 $('btnPng').addEventListener('click',savePNG);
+function makeShareUrl(){
+  const url=new URL(location.href);
+  url.search='';
+  const q=url.searchParams;
+  q.set('theme',THEMES[st.themeIdx]);
+  q.set('yaw',st.yaw.toFixed(4));
+  q.set('pitch',st.pitch.toFixed(4));
+  q.set('explode',Math.round(st.explode*100));
+  q.set('zoom',Math.round(st.zoom*100));
+  if(st.sectionOn) q.set('section',Math.round(st.section));
+  if(st.selected) q.set('part',st.selected);
+  if(st.xray) q.set('xray','1');
+  if(!st.auto) q.set('auto','0');
+  if(st.spin!==1) q.set('spin',st.spin.toFixed(2));
+  q.set('intro','0');
+  return url.toString();
+}
+async function shareView(){
+  const url=makeShareUrl();
+  let copied=false;
+  try {
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(url);
+      copied=true;
+    }
+  } catch(err) { /* file:// or permission denial: offer manual copy */ }
+  if(!copied && typeof window.prompt==='function'){
+    window.prompt('复制当前图纸视角链接：',url);
+  }
+  $('a11yStatus').textContent=copied ? '当前视角链接已复制' : '已显示分享链接';
+  $('btnShare').textContent=copied?'COPIED':'SHARE';
+  if(copied) setTimeout(()=>$('btnShare').textContent='SHARE',1800);
+}
+$('btnShare').addEventListener('click',shareView);
+function setPanelFolded(folded){
+  const p=$('panel');
+  if(folded) p.classList.add('folded');
+  else p.classList.remove('folded');
+  $('fold').textContent=folded?'+':'−';
+  $('fold').setAttribute('aria-expanded',String(!folded));
+  $('fold').setAttribute('aria-label',folded?'展开控制台':'折叠控制台');
+}
 $('fold').addEventListener('click',()=>{
-  const p=$('panel'); p.classList.toggle('folded');
-  $('fold').innerHTML=p.classList.contains('folded')?'+':'&#8722;';
+  setPanelFolded(!$('panel').classList.contains('folded'));
 });
+
 window.addEventListener('keydown',e=>{
+  // 表单控件和按钮保留原生键盘行为；不要截获空格键的按钮激活。
+  if(e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+     e.target?.closest?.('button, a, input, textarea, select, [contenteditable]')) return;
   const k=e.key.toLowerCase();
   if(k==='t') cycleTheme();
   else if(k==='r') reset();
@@ -745,41 +916,83 @@ window.addEventListener('keydown',e=>{
   else if(k==='h'){ st.hidden=!st.hidden; syncToggles(); }
   else if(k==='g'){ st.grid=!st.grid; syncToggles(); }
 });
+
 window.addEventListener('resize',resize);
 window.addEventListener('orientationchange',resize);
 
 /* ---------- URL 参数：可分享的视图状态 ?theme=ink&explode=45&section=20&yaw=0.8 ---------- */
 function applyQuery(){
   const q=new URLSearchParams(location.search);
+  // 拒绝 NaN / Infinity 等参数，防止正交变换生成非法 Canvas 坐标。
+  const finiteParam=key=>{
+    const raw=q.get(key);
+    if(raw===null || !raw.trim()) return null;
+    const value=Number(raw);
+    return Number.isFinite(value) ? value : null;
+  };
   const ti=THEMES.indexOf(q.get('theme'));
   if(ti>=0){ st.themeIdx=ti; document.documentElement.dataset.theme=THEMES[ti]; readTheme(); $('btnTheme').textContent=THEME_LABEL[THEMES[ti]]; }
-  if(q.has('explode')){
-    st.explode=clamp(parseFloat(q.get('explode'))/100||0,0,1);
+  const explode=finiteParam('explode');
+  if(explode!==null){
+    st.explode=clamp(explode/100,0,1);
     $('explode').value=Math.round(st.explode*100);
     $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
   }
-  if(q.has('section')){
-    st.section=clamp(parseFloat(q.get('section'))||0,-100,100);
+  const section=finiteParam('section');
+  if(section!==null){
+    st.section=clamp(section,-100,100);
     $('section').value=st.section; st.sectionOn=true;
   }
-  if(q.has('zoom')){ st.zoom=clamp(parseFloat(q.get('zoom'))/100||1,.55,2); $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%'; }
-  if(q.has('yaw')) st.yaw=parseFloat(q.get('yaw'))||st.yaw;
-  if(q.has('pitch')) st.pitch=clamp(parseFloat(q.get('pitch'))||0,-1.35,1.35);
+  const spin=finiteParam('spin');
+  if(spin!==null){
+    st.spin=clamp(spin,0,2);
+    $('spin').value=Math.round(st.spin*100);
+    $('vSpin').textContent=st.spin.toFixed(2);
+  }
+  const zoom=finiteParam('zoom');
+  if(zoom!==null){
+    st.zoom=clamp(zoom/100,.55,2);
+    $('zoom').value=Math.round(st.zoom*100);
+    $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+  }
+  const yaw=finiteParam('yaw');
+  if(yaw!==null) st.yaw=yaw;
+  const pitch=finiteParam('pitch');
+  if(pitch!==null) st.pitch=clamp(pitch,-1.35,1.35);
   if(q.get('xray')==='1') st.xray=true;
   if(q.get('intro')==='0') st.t0=-1e9;
   if(q.get('auto')==='0') st.auto=false;
-  if(q.get('part')) st.selected=q.get('part');
+  if(PARTS.some(p=>p.id===q.get('part'))) st.selected=q.get('part');
   syncToggles(); updateSpec();
 }
+
 /* ---------- 调试 / 自动化接口 ---------- */
 window.__STRUCTURE__ = {
   get state(){ return Object.assign({}, st); },
-  set(patch){ Object.assign(st, patch||{}); syncToggles(); updateSpec(); },
+  set(patch){
+    if(!patch || typeof patch !== 'object') return;
+    Object.assign(st,patch);
+    if(THEMES[st.themeIdx]){
+      document.documentElement.dataset.theme=THEMES[st.themeIdx];
+      readTheme();
+      $('btnTheme').textContent=THEME_LABEL[THEMES[st.themeIdx]];
+    }
+    for(const [id,value] of [
+      ['explode',Math.round(st.explode*100),'vExplode'],
+      ['section',st.section,'vSection'],
+      ['spin',Math.round(st.spin*100),'vSpin'],
+      ['zoom',Math.round(st.zoom*100),'vZoom']
+    ]) $(id).value=value;
+    $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
+    $('vSpin').textContent=st.spin.toFixed(2);
+    $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+    syncToggles(); updateSpec();
+  },
   parts: PARTS.map(p => ({id:p.id, name:p.name, spec:p.spec.slice()})),
-  reset, shuffle, cycleTheme, exportPNG: savePNG
+  reset, shuffle, cycleTheme, exportPNG: savePNG, shareUrl: makeShareUrl
 };
 readTheme(); resize(); applyQuery(); syncToggles(); updateSpec();
-if(W<720){ $('panel').classList.add('folded'); $('fold').textContent='+'; }
+if(W<720) setPanelFolded(true);
 requestAnimationFrame(frame);
 })();
 </script>
