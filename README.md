@@ -21,7 +21,7 @@
 | 拾取 | 点击任意线段选中零件，高亮并展示规格（直径 / 截面 / 材质 / 轴承 / 版本） |
 | 主题 | `PAPER` 米白 / `INK` 墨黑 / `CYANOTYPE` 蓝晒，同步浏览器地址栏配色 |
 | 导出 | `PNG` 按钮导出含图框、标注、标题栏的完整图纸（按设备像素比高清） |
-| 降级 | `prefers-reduced-motion` 冻结装配自转；暂停冻结动画时钟；后台标签页停绘；无 Canvas 2D / JS 时给出提示 |
+| 降级 | `prefers-reduced-motion` 冻结装配自转；暂停冻结动画时钟；静止时跳过复杂重绘；后台标签页停绘；无 Canvas 2D / JS 时给出提示 |
 | 体积 | 约 34 KB，1 个 HTML、1 段内联脚本、0 个外部请求 |
 
 ## 快速开始
@@ -31,7 +31,7 @@
 # 方式二：本地静态服务
 npm run serve          # http://127.0.0.1:4173/
 # 方式三：校验
-npm run verify         # 59 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
+npm run verify         # 60 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
 npm test               # 16 项本地 HTTP 路由 / 安全 / HEAD 烟雾测试
 # 方式四：改设计令牌后重新生成产物
 npm run tokens         # tokens.json → tokens.css + 设计系统页生成块
