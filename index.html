@@ -104,12 +104,12 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
 <noscript><div class="fallback">This drawing requires JavaScript.<br>请开启 JavaScript 以查看交互式结构图。</div></noscript>
 
 <div class="panel" id="panel">
-  <div class="panel-head"><span>CONTROL / 控制台</span><button class="mini" id="fold" title="折叠">&#8722;</button></div>
+  <div class="panel-head"><span>CONTROL / 控制台</span><button class="mini" id="fold" title="折叠" aria-controls="panelBody" aria-expanded="true" aria-label="折叠控制台">&#8722;</button></div>
   <div class="panel-body" id="panelBody">
-    <div class="row"><label>EXPLODE <em>拆解</em><span class="val" id="vExplode">00%</span></label><input type="range" id="explode" min="0" max="100" value="0"></div>
-    <div class="row"><label>SECTION <em>剖切</em><span class="val" id="vSection">OFF</span></label><input type="range" id="section" min="-100" max="100" value="0"></div>
-    <div class="row"><label>SPIN <em>自转</em><span class="val" id="vSpin">1.00</span></label><input type="range" id="spin" min="0" max="200" value="100"></div>
-    <div class="row"><label>SCALE <em>比例</em><span class="val" id="vZoom">100%</span></label><input type="range" id="zoom" min="55" max="200" value="100"></div>
+    <div class="row"><label for="explode">EXPLODE <em>拆解</em><span class="val" id="vExplode">00%</span></label><input type="range" id="explode" min="0" max="100" value="0"></div>
+    <div class="row"><label for="section">SECTION <em>剖切</em><span class="val" id="vSection">OFF</span></label><input type="range" id="section" min="-100" max="100" value="0"></div>
+    <div class="row"><label for="spin">SPIN <em>自转</em><span class="val" id="vSpin">1.00</span></label><input type="range" id="spin" min="0" max="200" value="100"></div>
+    <div class="row"><label for="zoom">SCALE <em>比例</em><span class="val" id="vZoom">100%</span></label><input type="range" id="zoom" min="55" max="200" value="100"></div>
     <div class="toggles">
       <button class="tg on" data-k="hidden" title="隐藏虚线">HIDDEN</button>
       <button class="tg on" data-k="grid" title="图纸网格">GRID</button>
@@ -125,7 +125,7 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
       <button class="tg" id="btnPng">PNG</button>
     </div>
     <div class="spec">
-      <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName">NO SELECTION</span></div>
+      <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName" aria-live="polite">NO SELECTION</span></div>
       <div class="spec-empty" id="specEmpty">点击线段选取零件 · 查看规格<br>DRAG 旋转 / WHEEL 拆解 / T 切主题</div>
       <div class="spec-rows" id="specRows" style="display:none"></div>
     </div>
@@ -601,20 +601,30 @@ function draw(now){
   drawHUD(prims);
   lastPrims=prims;
 }
+let lastFrameAt = null;
+let motionTime = 0;
 function frame(now){
   requestAnimationFrame(frame);
-  if(document.hidden) return;                 // 后台标签页停止绘制，回到前台自动恢复
-  if(!st.paused){
-    if(!st.dragging && !RM){
-      st.yaw += st.velY; st.pitch += st.velP;
-      st.velY *= CFG.inertia; st.velP *= CFG.inertia;
+  // rAF 的时间戳只用于计算增量。后台恢复时限制单帧跨度，避免突然跳动。
+  if(document.hidden){ lastFrameAt=now; return; }
+  const dt = lastFrameAt === null ? 0 : clamp(now-lastFrameAt,0,50);
+  lastFrameAt = now;
+  const step = dt/(1000/60);
+  if(!st.paused && !RM){
+    // 仅推进自己的动画时钟：暂停 / 切后台 / 减少动态效果时零件不再暗中转动。
+    motionTime += dt;
+    if(!st.dragging){
+      st.yaw += st.velY*step; st.pitch += st.velP*step;
+      st.velY *= Math.pow(CFG.inertia,step);
+      st.velP *= Math.pow(CFG.inertia,step);
     }
-    if(st.auto) st.yaw += CFG.autoSpin*st.spin;
+    if(st.auto) st.yaw += CFG.autoSpin*st.spin*step;
   }
-  st.parX += (st.tarX-st.parX)*CFG.parallaxEase;
-  st.parY += (st.tarY-st.parY)*CFG.parallaxEase;
+  const ease = (RM || st.paused) ? 1 : 1-Math.pow(1-CFG.parallaxEase,step);
+  st.parX += (st.tarX-st.parX)*ease;
+  st.parY += (st.tarY-st.parY)*ease;
   st.pitch = clamp(st.pitch,-1.35,1.35);
-  draw(now);
+  draw(motionTime);
 }
 
 /* ---------- 交互 ---------- */
@@ -637,13 +647,17 @@ function updateSpec(){
   $('specName').textContent=P.name;
   $('specRows').innerHTML=P.spec.map(v=>'<span>'+v+'</span>').join('');
 }
+let activePointerId = null;
 cv.addEventListener('pointerdown',e=>{
+  if(activePointerId !== null || e.button !== 0) return;
+  activePointerId=e.pointerId;
   st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
   st.downX=e.clientX; st.downY=e.clientY;
   st.velY=st.velP=0; cv.classList.add('dragging');
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
 });
 cv.addEventListener('pointermove',e=>{
+  if(activePointerId !== null && e.pointerId !== activePointerId) return;
   st.mx=e.clientX; st.my=e.clientY;
   st.tarX=(e.clientX/W-.5)*CFG.followYaw;
   st.tarY=(e.clientY/H-.5)*CFG.followPitch;
@@ -654,13 +668,20 @@ cv.addEventListener('pointermove',e=>{
     st.lx=e.clientX; st.ly=e.clientY;
   }
 });
-cv.addEventListener('pointerup',e=>{
+function finishPointer(e,cancelled){
+  if(e.pointerId !== activePointerId) return;
+  activePointerId=null;
   st.dragging=false; cv.classList.remove('dragging');
-  if(Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
+  if(!cancelled && Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
     st.selected=pick(e.clientX,e.clientY); updateSpec();
   }
-});
+  if(cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId);
+}
+cv.addEventListener('pointerup',e=>finishPointer(e,false));
+cv.addEventListener('pointercancel',e=>finishPointer(e,true));
+cv.addEventListener('lostpointercapture',e=>finishPointer(e,true));
 cv.addEventListener('pointerleave',()=>{ st.mx=st.my=-999; st.tarX=st.tarY=0; });
+
 cv.addEventListener('wheel',e=>{
   e.preventDefault();
   if(e.shiftKey){
@@ -681,6 +702,7 @@ bindRange('zoom',v=>{ st.zoom=v/100; $('vZoom').textContent=v+'%'; });
 function syncToggles(){
   document.querySelectorAll('.tg[data-k]').forEach(b=>{
     b.classList.toggle('on', !!st[b.dataset.k]);
+    b.setAttribute('aria-pressed', String(!!st[b.dataset.k]));
   });
   $('vSection').textContent = st.sectionOn ? ((st.section>=0?'+':'')+st.section) : 'OFF';
 }
@@ -732,10 +754,16 @@ $('btnReset').addEventListener('click',reset);
 $('btnShuffle').addEventListener('click',shuffle);
 $('btnPng').addEventListener('click',savePNG);
 $('fold').addEventListener('click',()=>{
-  const p=$('panel'); p.classList.toggle('folded');
-  $('fold').innerHTML=p.classList.contains('folded')?'+':'&#8722;';
+  const p=$('panel'), folded=p.classList.toggle('folded');
+  $('fold').textContent=folded?'+':'−';
+  $('fold').setAttribute('aria-expanded',String(!folded));
+  $('fold').setAttribute('aria-label',folded?'展开控制台':'折叠控制台');
 });
+
 window.addEventListener('keydown',e=>{
+  // 表单控件和按钮保留原生键盘行为；不要截获空格键的按钮激活。
+  if(e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+     e.target?.closest?.('button, a, input, textarea, select, [contenteditable]')) return;
   const k=e.key.toLowerCase();
   if(k==='t') cycleTheme();
   else if(k==='r') reset();
@@ -745,41 +773,77 @@ window.addEventListener('keydown',e=>{
   else if(k==='h'){ st.hidden=!st.hidden; syncToggles(); }
   else if(k==='g'){ st.grid=!st.grid; syncToggles(); }
 });
+
 window.addEventListener('resize',resize);
 window.addEventListener('orientationchange',resize);
 
 /* ---------- URL 参数：可分享的视图状态 ?theme=ink&explode=45&section=20&yaw=0.8 ---------- */
 function applyQuery(){
   const q=new URLSearchParams(location.search);
+  // 拒绝 NaN / Infinity 等参数，防止正交变换生成非法 Canvas 坐标。
+  const finiteParam=key=>{
+    const raw=q.get(key);
+    if(raw===null || !raw.trim()) return null;
+    const value=Number(raw);
+    return Number.isFinite(value) ? value : null;
+  };
   const ti=THEMES.indexOf(q.get('theme'));
   if(ti>=0){ st.themeIdx=ti; document.documentElement.dataset.theme=THEMES[ti]; readTheme(); $('btnTheme').textContent=THEME_LABEL[THEMES[ti]]; }
-  if(q.has('explode')){
-    st.explode=clamp(parseFloat(q.get('explode'))/100||0,0,1);
+  const explode=finiteParam('explode');
+  if(explode!==null){
+    st.explode=clamp(explode/100,0,1);
     $('explode').value=Math.round(st.explode*100);
     $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
   }
-  if(q.has('section')){
-    st.section=clamp(parseFloat(q.get('section'))||0,-100,100);
+  const section=finiteParam('section');
+  if(section!==null){
+    st.section=clamp(section,-100,100);
     $('section').value=st.section; st.sectionOn=true;
   }
-  if(q.has('zoom')){ st.zoom=clamp(parseFloat(q.get('zoom'))/100||1,.55,2); $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%'; }
-  if(q.has('yaw')) st.yaw=parseFloat(q.get('yaw'))||st.yaw;
-  if(q.has('pitch')) st.pitch=clamp(parseFloat(q.get('pitch'))||0,-1.35,1.35);
+  const zoom=finiteParam('zoom');
+  if(zoom!==null){
+    st.zoom=clamp(zoom/100,.55,2);
+    $('zoom').value=Math.round(st.zoom*100);
+    $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+  }
+  const yaw=finiteParam('yaw');
+  if(yaw!==null) st.yaw=yaw;
+  const pitch=finiteParam('pitch');
+  if(pitch!==null) st.pitch=clamp(pitch,-1.35,1.35);
   if(q.get('xray')==='1') st.xray=true;
   if(q.get('intro')==='0') st.t0=-1e9;
   if(q.get('auto')==='0') st.auto=false;
-  if(q.get('part')) st.selected=q.get('part');
+  if(PARTS.some(p=>p.id===q.get('part'))) st.selected=q.get('part');
   syncToggles(); updateSpec();
 }
+
 /* ---------- 调试 / 自动化接口 ---------- */
 window.__STRUCTURE__ = {
   get state(){ return Object.assign({}, st); },
-  set(patch){ Object.assign(st, patch||{}); syncToggles(); updateSpec(); },
+  set(patch){
+    if(!patch || typeof patch !== 'object') return;
+    Object.assign(st,patch);
+    if(THEMES[st.themeIdx]){
+      document.documentElement.dataset.theme=THEMES[st.themeIdx];
+      readTheme();
+      $('btnTheme').textContent=THEME_LABEL[THEMES[st.themeIdx]];
+    }
+    for(const [id,value] of [
+      ['explode',Math.round(st.explode*100),'vExplode'],
+      ['section',st.section,'vSection'],
+      ['spin',Math.round(st.spin*100),'vSpin'],
+      ['zoom',Math.round(st.zoom*100),'vZoom']
+    ]) $(id).value=value;
+    $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
+    $('vSpin').textContent=st.spin.toFixed(2);
+    $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+    syncToggles(); updateSpec();
+  },
   parts: PARTS.map(p => ({id:p.id, name:p.name, spec:p.spec.slice()})),
   reset, shuffle, cycleTheme, exportPNG: savePNG
 };
 readTheme(); resize(); applyQuery(); syncToggles(); updateSpec();
-if(W<720){ $('panel').classList.add('folded'); $('fold').textContent='+'; }
+if(W<720){ $('panel').classList.add('folded'); $('fold').textContent='+'; $('fold').setAttribute('aria-expanded','false'); $('fold').setAttribute('aria-label','展开控制台'); }
 requestAnimationFrame(frame);
 })();
 </script>

@@ -21,7 +21,7 @@
 | 拾取 | 点击任意线段选中零件，高亮并展示规格（直径 / 截面 / 材质 / 轴承 / 版本） |
 | 主题 | `PAPER` 米白 / `INK` 墨黑 / `CYANOTYPE` 蓝晒，同步浏览器地址栏配色 |
 | 导出 | `PNG` 按钮导出含图框、标注、标题栏的完整图纸（按设备像素比高清） |
-| 降级 | `prefers-reduced-motion` 关闭自动动效；后台标签页停绘；无 Canvas 2D / JS 时给出提示 |
+| 降级 | `prefers-reduced-motion` 冻结装配自转；暂停冻结动画时钟；后台标签页停绘；无 Canvas 2D / JS 时给出提示 |
 | 体积 | 约 34 KB，1 个 HTML、1 段内联脚本、0 个外部请求 |
 
 ## 快速开始
@@ -31,12 +31,13 @@
 # 方式二：本地静态服务
 npm run serve          # http://127.0.0.1:4173/
 # 方式三：校验
-npm run verify         # 55 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
+npm run verify         # 59 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
+npm test               # 16 项本地 HTTP 路由 / 安全 / HEAD 烟雾测试
 # 方式四：改设计令牌后重新生成产物
 npm run tokens         # tokens.json → tokens.css + 设计系统页生成块
 ```
 
-`serve.mjs`、`verify.mjs` 与 `tokens.mjs` 只用 Node 内置模块，**不需要安装任何依赖**。
+`serve.mjs`、`verify.mjs` 与 `tokens.mjs` 只用 Node 内置模块，**不需要安装任何依赖**。本地预览支持 `/design-system/` 目录首页，并只开放 Pages 发布的文件路径，避免误暴露仓库配置。
 
 ## 交互
 
@@ -179,7 +180,7 @@ git push origin main            # Actions 自动重新部署 Pages
 
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：先跑 `verify.mjs` 自检，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`），`github-pages` 环境的 branch policy 允许 `main`。也可在 Actions 页手动 `Run workflow`（或 `gh workflow run deploy-pages.yml`）重新部署 —— 若某次 push 触发的 run 因平台抖动未启动 deploy 阶段，手动触发一次即可补齐。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：在 PR 上执行 `verify.mjs` 和 HTTP 烟雾测试；合并到 `main` 后先跑校验，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`），`github-pages` 环境的 branch policy 允许 `main`。也可在 Actions 页手动 `Run workflow`（或 `gh workflow run deploy-pages.yml`）重新部署 —— 若某次 push 触发的 run 因平台抖动未启动 deploy 阶段，手动触发一次即可补齐。
 
 ## 许可
 
