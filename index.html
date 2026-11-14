@@ -44,6 +44,8 @@ body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",mo
   font-size:10px;letter-spacing:.06em;
 }
 .panel.folded{width:150px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .panel.folded .panel-body{display:none}
 .panel-head{
   display:flex;align-items:center;justify-content:space-between;
@@ -95,8 +97,24 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
 .skill a:hover{color:var(--accent);border-color:var(--accent)}
 .skill a + a{margin-top:5px}
 @media (max-width:720px){
-  .panel{right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));width:210px;font-size:9px}
+  .panel{left:12px;right:12px;bottom:max(10px,env(safe-area-inset-bottom));width:auto;
+    max-height:min(72dvh,650px);overflow-y:auto;overscroll-behavior:contain;font-size:11px}
+  .panel.folded{left:auto;right:max(12px,env(safe-area-inset-right));top:62px;bottom:auto;
+    width:146px;max-height:none;overflow:visible}
+  .panel-head{min-height:44px;padding:6px 10px}
+  .mini{width:32px;height:32px;line-height:28px;font-size:16px}
+  .row{margin-bottom:8px}
+  input[type=range]{height:32px}
+  input[type=range]::-webkit-slider-thumb{width:18px;height:18px;margin-top:-8px}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px}
+  .tg{min-height:36px;font-size:11px}
+  .btns .tg{min-height:38px;font-size:10px}
+  .skill a{min-height:34px;display:flex;align-items:center;justify-content:center}
 }
+@media (max-height:520px) and (max-width:960px){
+  .panel:not(.folded){max-height:82dvh}
+}
+
 </style>
 </head>
 <body>
@@ -123,6 +141,7 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
       <button class="tg" id="btnReset">RESET</button>
       <button class="tg" id="btnShuffle">SHUFFLE</button>
       <button class="tg" id="btnPng">PNG</button>
+      <button class="tg" id="btnShare" title="复制当前视角链接">SHARE</button>
     </div>
     <div class="spec">
       <div class="spec-head"><span class="spec-id" id="specId">&#8212;</span><span class="spec-name" id="specName" aria-live="polite">NO SELECTION</span></div>
@@ -135,6 +154,7 @@ input[type=range]::-moz-range-thumb{width:9px;height:9px;background:var(--accent
     </div>
   </div>
 </div>
+<div class="sr-only" id="a11yStatus" role="status" aria-live="polite"></div>
 
 <script>
 (() => {
@@ -403,16 +423,21 @@ function drawPaper(){
   }
   ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.stroke();
   // 页眉
-  spaced('STRUCTURE 01  /  GIMBAL ASSEMBLY', 30, 36, 1.4, 12, C.ink);
-  spaced('ORTHOGRAPHIC STUDY  ·  SHEET 01 / 01', W-30, 36, 1.1, 9, C.soft, 'right');
+  if(W<720) spaced('STRUCTURE 01 / GIMBAL', 25, 36, .6, 10.5, C.ink);
+  else {
+    spaced('STRUCTURE 01  /  GIMBAL ASSEMBLY', 30, 36, 1.4, 12, C.ink);
+    spaced('ORTHOGRAPHIC STUDY  ·  SHEET 01 / 01', W-30, 36, 1.1, 9, C.soft, 'right');
+  }
   ctx.beginPath(); ctx.moveTo(30,50); ctx.lineTo(W-30,50);
   ctx.strokeStyle=C.line; ctx.lineWidth=1; ctx.stroke();
-  // 印章
+  // 印章：窄屏只保留标题，避免与折叠控件重叠。
+  if(W>=720){
   ctx.save(); ctx.translate(W-96,74); ctx.rotate(-0.10);
   ctx.strokeStyle=C.accent; ctx.lineWidth=1.2; ctx.globalAlpha=.75;
   ctx.strokeRect(-42,-13,84,26);
   spaced('ORIGINAL', 0, 0, 2, 9, C.accent, 'center');
   ctx.restore(); ctx.globalAlpha=1;
+  }
 }
 function drawAxes(){
   const y=st.yaw+st.parX, pi=st.pitch+st.parY, ro=st.roll;
@@ -485,6 +510,7 @@ function drawDimensions(){
   arrowHead(x1,y,1,C.line); arrowHead(x2,y,-1,C.line);
   ctx.fillStyle=C.bg; ctx.fillRect(cx-52,y-8,104,16);
   spaced('Ø 480.00 ±0.05', cx, y, 1, 10, C.ink, 'center');
+  if(W<720) return; // 小屏省略竖向尺寸线与量角器，保证主体的可读性
   const vx = cx-292*S, vy1=cy-240*S, vy2=cy+240*S;
   strokeGroup([[vx-12,vy1,vx,vy1],[vx-12,vy2,vx,vy2],[vx,vy1,vx,vy2]], C.line, .9);
   const vArrow=(x,yy,dir)=>{
@@ -535,11 +561,29 @@ function drawLeaders(prims){
     ctx.fillStyle=col; ctx.fill();
     ctx.beginPath(); ctx.arc(p0[0],p0[1],5.5,0,Math.PI*2);
     ctx.strokeStyle=col; ctx.lineWidth=.7; ctx.stroke();
-    spaced(it.P.id+'  '+it.P.name, lx, it.ly, 1, 9.5, sel?C.accent:C.ink, it.side<0?'left':'right');
-    spaced(it.P.spec[0]+'   ·   '+it.P.spec[5], lx, it.ly+13, .8, 8.5, C.soft, it.side<0?'left':'right');
+    const shortName=it.P.name.replace('GIMBAL ','').replace(' SPHERE','');
+    spaced(W<720 ? it.P.id+' '+shortName : it.P.id+'  '+it.P.name,
+      lx, it.ly, W<720?.25:1, W<720?9:9.5, sel?C.accent:C.ink, it.side<0?'left':'right');
+    spaced(W<720 ? it.P.spec[0] : it.P.spec[0]+'   ·   '+it.P.spec[5],
+      lx, it.ly+13, W<720?.2:.8, W<720?8:8.5, C.soft, it.side<0?'left':'right');
   }
 }
 function drawHUD(prims){
+  // 窄屏保留最有用的状态，避免文字叠在控制台和装配体上。
+  if(W<720){
+    spaced('YAW '+deg(st.yaw+st.parX)+'°  PITCH '+deg(st.pitch+st.parY)+'°',
+      25,74,.25,8.5,C.soft);
+    spaced('EXPLODE '+(st.explode*100).toFixed(0)+'%  ZOOM '+(st.zoom*100).toFixed(0)+'%',
+      25,90,.25,8.5,C.accent);
+    const bw=246,bh=65,bx=22,by=H-bh-18;
+    ctx.fillStyle=C.bg; ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle=C.line;ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+    strokeGroup([[bx,by+28,bx+bw,by+28],[bx,by+47,bx+bw,by+47]],C.line,.8);
+    spaced('GIMBAL ASSEMBLY / 01',bx+9,by+14,.6,9,C.ink);
+    spaced('PROJ. ORTHOGRAPHIC  ·  REV 03',bx+9,by+38,.2,8,C.soft);
+    spaced('DRAG ORBIT   ·   PINCH ZOOM',bx+9,by+56,.4,8,C.accent);
+    return;
+  }
   // 左上实时读数
   const mx=st.mx<0?cx:st.mx, my=st.my<0?cy:st.my;
   spaced('X '+String(Math.round(mx)).padStart(4,'0')+'   Y '+String(Math.round(my)).padStart(4,'0'), 30, 78, 1.1, 10, C.ink);
@@ -663,21 +707,53 @@ function updateSpec(){
   $('specName').textContent=P.name;
   $('specRows').innerHTML=P.spec.map(v=>'<span>'+v+'</span>').join('');
 }
-let activePointerId = null;
+const pointers = new Map();
+let gestureHadMultiple = false;
+let pinchStartDistance = 0;
+let pinchStartZoom = 1;
+function pointerDistance(){
+  const [a,b]=[...pointers.values()];
+  return a&&b ? Math.hypot(a.x-b.x,a.y-b.y) : 0;
+}
+function syncZoomControl(){
+  $('zoom').value=Math.round(st.zoom*100);
+  $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+}
+function beginPinch(){
+  gestureHadMultiple=true;
+  st.dragging=false;
+  st.velY=st.velP=0;
+  pinchStartDistance=Math.max(1,pointerDistance());
+  pinchStartZoom=st.zoom;
+  cv.classList.remove('dragging');
+}
 cv.addEventListener('pointerdown',e=>{
-  if(activePointerId !== null || e.button !== 0) return;
-  activePointerId=e.pointerId;
-  st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
-  st.downX=e.clientX; st.downY=e.clientY;
-  st.velY=st.velP=0; cv.classList.add('dragging');
+  if(e.pointerType==='mouse' && e.button!==0) return;
+  if(pointers.has(e.pointerId)) return;
+  // 每个活跃指针独立保存，第二根手指可立即进入捏合缩放。
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+  if(pointers.size===1){
+    gestureHadMultiple=false;
+    st.dragging=true; st.lx=e.clientX; st.ly=e.clientY;
+    st.downX=e.clientX; st.downY=e.clientY;
+    st.velY=st.velP=0; cv.classList.add('dragging');
+  }else if(pointers.size===2) beginPinch();
+  else { gestureHadMultiple=true; st.dragging=false; }
 });
 cv.addEventListener('pointermove',e=>{
-  if(activePointerId !== null && e.pointerId !== activePointerId) return;
-  st.mx=e.clientX; st.my=e.clientY;
-  st.tarX=(e.clientX/W-.5)*CFG.followYaw;
-  st.tarY=(e.clientY/H-.5)*CFG.followPitch;
-  if(st.dragging){
+  if(e.pointerType==='mouse'){
+    st.mx=e.clientX; st.my=e.clientY;
+    st.tarX=(e.clientX/W-.5)*CFG.followYaw;
+    st.tarY=(e.clientY/H-.5)*CFG.followPitch;
+  }
+  const current=pointers.get(e.pointerId);
+  if(!current) return;
+  current.x=e.clientX; current.y=e.clientY;
+  if(pointers.size===2){
+    st.zoom=clamp(pinchStartZoom*pointerDistance()/pinchStartDistance,.55,2);
+    syncZoomControl();
+  }else if(pointers.size===1 && st.dragging){
     const dx=e.clientX-st.lx, dy=e.clientY-st.ly;
     st.yaw += dx*CFG.dragSpeed; st.pitch -= dy*CFG.dragSpeed;
     st.velY=dx*CFG.dragSpeed; st.velP=-dy*CFG.dragSpeed;
@@ -685,24 +761,36 @@ cv.addEventListener('pointermove',e=>{
   }
 });
 function finishPointer(e,cancelled){
-  if(e.pointerId !== activePointerId) return;
-  activePointerId=null;
-  st.dragging=false; cv.classList.remove('dragging');
-  if(!cancelled && Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
+  if(!pointers.has(e.pointerId)) return;
+  const wasSingle=pointers.size===1;
+  pointers.delete(e.pointerId);
+  try{ if(cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId); }catch(err){}
+  if(!cancelled && wasSingle && !gestureHadMultiple &&
+     Math.hypot(e.clientX-st.downX,e.clientY-st.downY)<5){
     st.selected=pick(e.clientX,e.clientY); updateSpec();
+    if(W<720 && st.selected) setPanelFolded(false);
   }
-  if(cv.hasPointerCapture(e.pointerId)) cv.releasePointerCapture(e.pointerId);
+  if(pointers.size===1){
+    const remaining=[...pointers.values()][0];
+    st.dragging=true; st.lx=st.downX=remaining.x; st.ly=st.downY=remaining.y;
+    st.velY=st.velP=0; cv.classList.add('dragging');
+  }else if(pointers.size===2) beginPinch();
+  else {
+    st.dragging=false; cv.classList.remove('dragging');
+    if(pointers.size===0) gestureHadMultiple=false;
+  }
 }
 cv.addEventListener('pointerup',e=>finishPointer(e,false));
 cv.addEventListener('pointercancel',e=>finishPointer(e,true));
 cv.addEventListener('lostpointercapture',e=>finishPointer(e,true));
-cv.addEventListener('pointerleave',()=>{ st.mx=st.my=-999; st.tarX=st.tarY=0; });
-
+cv.addEventListener('pointerleave',e=>{
+  if(e.pointerType==='mouse'){ st.mx=st.my=-999; st.tarX=st.tarY=0; }
+});
 cv.addEventListener('wheel',e=>{
   e.preventDefault();
   if(e.shiftKey){
     st.zoom=clamp(st.zoom*(1-e.deltaY*CFG.wheelZoom),.55,2);
-    $('zoom').value=Math.round(st.zoom*100); $('vZoom').textContent=Math.round(st.zoom*100)+'%';
+    syncZoomControl();
   }else{
     st.explode=clamp(st.explode+e.deltaY*CFG.wheelExplode,0,1);
     $('explode').value=Math.round(st.explode*100); $('vExplode').textContent=String(Math.round(st.explode*100)).padStart(2,'0')+'%';
@@ -769,11 +857,50 @@ $('btnTheme').addEventListener('click',cycleTheme);
 $('btnReset').addEventListener('click',reset);
 $('btnShuffle').addEventListener('click',shuffle);
 $('btnPng').addEventListener('click',savePNG);
-$('fold').addEventListener('click',()=>{
-  const p=$('panel'), folded=p.classList.toggle('folded');
+function makeShareUrl(){
+  const url=new URL(location.href);
+  url.search='';
+  const q=url.searchParams;
+  q.set('theme',THEMES[st.themeIdx]);
+  q.set('yaw',st.yaw.toFixed(4));
+  q.set('pitch',st.pitch.toFixed(4));
+  q.set('explode',Math.round(st.explode*100));
+  q.set('zoom',Math.round(st.zoom*100));
+  if(st.sectionOn) q.set('section',Math.round(st.section));
+  if(st.selected) q.set('part',st.selected);
+  if(st.xray) q.set('xray','1');
+  if(!st.auto) q.set('auto','0');
+  if(st.spin!==1) q.set('spin',st.spin.toFixed(2));
+  q.set('intro','0');
+  return url.toString();
+}
+async function shareView(){
+  const url=makeShareUrl();
+  let copied=false;
+  try {
+    if(navigator.clipboard?.writeText){
+      await navigator.clipboard.writeText(url);
+      copied=true;
+    }
+  } catch(err) { /* file:// or permission denial: offer manual copy */ }
+  if(!copied && typeof window.prompt==='function'){
+    window.prompt('复制当前图纸视角链接：',url);
+  }
+  $('a11yStatus').textContent=copied ? '当前视角链接已复制' : '已显示分享链接';
+  $('btnShare').textContent=copied?'COPIED':'SHARE';
+  if(copied) setTimeout(()=>$('btnShare').textContent='SHARE',1800);
+}
+$('btnShare').addEventListener('click',shareView);
+function setPanelFolded(folded){
+  const p=$('panel');
+  if(folded) p.classList.add('folded');
+  else p.classList.remove('folded');
   $('fold').textContent=folded?'+':'−';
   $('fold').setAttribute('aria-expanded',String(!folded));
   $('fold').setAttribute('aria-label',folded?'展开控制台':'折叠控制台');
+}
+$('fold').addEventListener('click',()=>{
+  setPanelFolded(!$('panel').classList.contains('folded'));
 });
 
 window.addEventListener('keydown',e=>{
@@ -816,6 +943,12 @@ function applyQuery(){
     st.section=clamp(section,-100,100);
     $('section').value=st.section; st.sectionOn=true;
   }
+  const spin=finiteParam('spin');
+  if(spin!==null){
+    st.spin=clamp(spin,0,2);
+    $('spin').value=Math.round(st.spin*100);
+    $('vSpin').textContent=st.spin.toFixed(2);
+  }
   const zoom=finiteParam('zoom');
   if(zoom!==null){
     st.zoom=clamp(zoom/100,.55,2);
@@ -856,10 +989,10 @@ window.__STRUCTURE__ = {
     syncToggles(); updateSpec();
   },
   parts: PARTS.map(p => ({id:p.id, name:p.name, spec:p.spec.slice()})),
-  reset, shuffle, cycleTheme, exportPNG: savePNG
+  reset, shuffle, cycleTheme, exportPNG: savePNG, shareUrl: makeShareUrl
 };
 readTheme(); resize(); applyQuery(); syncToggles(); updateSpec();
-if(W<720){ $('panel').classList.add('folded'); $('fold').textContent='+'; $('fold').setAttribute('aria-expanded','false'); $('fold').setAttribute('aria-label','展开控制台'); }
+if(W<720) setPanelFolded(true);
 requestAnimationFrame(frame);
 })();
 </script>

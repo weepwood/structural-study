@@ -21,8 +21,10 @@
 | 拾取 | 点击任意线段选中零件，高亮并展示规格（直径 / 截面 / 材质 / 轴承 / 版本） |
 | 主题 | `PAPER` 米白 / `INK` 墨黑 / `CYANOTYPE` 蓝晒，同步浏览器地址栏配色 |
 | 导出 | `PNG` 按钮导出含图框、标注、标题栏的完整图纸（按设备像素比高清） |
+| 分享 | `SHARE` 按钮复制当前主题 / 角度 / 拆解 / 速度 / 零件的链接，离线文件提供手动复制 |
+| 移动端 | 单指旋转、双指捏合缩放、点击零件展开规格，窄屏自动精简图纸标注 |
 | 降级 | `prefers-reduced-motion` 冻结装配自转；暂停冻结动画时钟；静止时跳过复杂重绘；后台标签页停绘；无 Canvas 2D / JS 时给出提示 |
-| 体积 | 约 34 KB，1 个 HTML、1 段内联脚本、0 个外部请求 |
+| 体积 | 约 42 KB，1 个 HTML、1 段内联脚本、0 个外部请求 |
 
 ## 快速开始
 
@@ -31,8 +33,8 @@
 # 方式二：本地静态服务
 npm run serve          # http://127.0.0.1:4173/
 # 方式三：校验
-npm run verify         # 60 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
-npm test               # 16 项本地 HTTP 路由 / 安全 / HEAD 烟雾测试
+npm run verify         # 63 项结构 / 语法 / 安全 / 技能包 / 令牌一致性自检
+npm test               # 16 项 HTTP 烟雾测试 + 4 组交互模拟测试
 # 方式四：改设计令牌后重新生成产物
 npm run tokens         # tokens.json → tokens.css + 设计系统页生成块
 ```
@@ -50,6 +52,8 @@ npm run tokens         # tokens.json → tokens.css + 设计系统页生成块
 | 点击线段 | 选取零件，显示规格卡 |
 | `T` / `R` / `F` / `S` | 切主题 / 重置 / 随机姿态 / 导出 PNG |
 | `H` / `G` / 空格 | 隐藏虚线 / 网格 / 暂停 |
+| 手机单指 / 双指 | 旋转装配体 / 捏合缩放 |
+| `SHARE` | 复制当前视角的可分享 URL |
 
 控制台还提供 `HIDDEN`、`GRID`、`AUTO`、`X-RAY`（关闭实体遮挡）、`SECTION`、`PAUSE` 开关与四个滑块。
 
@@ -67,6 +71,7 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 | `part` | `part=R-03` | 预选零件 |
 | `xray` | `xray=1` | 关闭实体遮挡 |
 | `auto` / `intro` | `auto=0&intro=0` | 关闭自转 / 跳过入场动画（截图、测试用） |
+| `spin` | `spin=0.8` | 自转速率 0–2 |
 
 例：<https://weepwood.github.io/structural-study/?theme=cyan&explode=45&section=30&part=R-03>
 
@@ -110,7 +115,9 @@ URL 查询参数会覆盖默认状态，可直接把某个视角发给别人：
 ├── scripts/
 │   ├── tokens.mjs                    # 令牌生成逻辑（纯函数，verify 复用）
 │   ├── build-tokens.mjs              # 重新生成 tokens.css 与页面生成块
-│   ├── verify.mjs                    # 55 项自检（含生成物一致性）
+│   ├── verify.mjs                    # 63 项自检（含生成物一致性）
+│   ├── test-server.mjs               # HTTP 路由、安全和文件 MIME
+│   └── test-interaction.mjs          # 触控、分享、Canvas 数值模拟测试
 │   └── serve.mjs                     # Node 内置静态服务器
 ├── .github/workflows/deploy-pages.yml# GitHub Actions → GitHub Pages
 ├── LICENSE                           # MIT
@@ -172,7 +179,7 @@ node skills/orthographic-blueprint/scripts/check-drawing.mjs ./drawing.html
 ```bash
 vim design-system/tokens.json   # 只改数值源
 npm run tokens                  # 重生成 tokens.css 与页面生成块
-npm run verify                  # 55 项自检，含生成物一致性
+npm run verify                  # 63 项自检，含生成物一致性
 git push origin main            # Actions 自动重新部署 Pages
 ```
 
@@ -180,7 +187,7 @@ git push origin main            # Actions 自动重新部署 Pages
 
 ## 部署
 
-推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：在 PR 上执行 `verify.mjs` 和 HTTP 烟雾测试；合并到 `main` 后先跑校验，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`），`github-pages` 环境的 branch policy 允许 `main`。也可在 Actions 页手动 `Run workflow`（或 `gh workflow run deploy-pages.yml`）重新部署 —— 若某次 push 触发的 run 因平台抖动未启动 deploy 阶段，手动触发一次即可补齐。
+推送到 `main` 即触发 `.github/workflows/deploy-pages.yml`：在 PR 上执行 `verify.mjs`、HTTP 烟雾测试和交互模拟测试；合并到 `main` 后先跑校验，再把 `index.html`、`skill.html`、`design.md`、`skills/` 与 `design-system/` 复制进 `_site/`（附 `.nojekyll`），用官方 `configure-pages` / `upload-pages-artifact` / `deploy-pages` 发布。仓库 Pages 的 Build source 已设为 **GitHub Actions**（`build_type=workflow`），`github-pages` 环境的 branch policy 允许 `main`。也可在 Actions 页手动 `Run workflow`（或 `gh workflow run deploy-pages.yml`）重新部署 —— 若某次 push 触发的 run 因平台抖动未启动 deploy 阶段，手动触发一次即可补齐。
 
 ## 许可
 
