@@ -447,7 +447,7 @@ function drawAxes(){
   strokeGroup(axes.map(([a,b])=>seg(T(a),T(b))), C.faint, 1, [12,4,2,4]);
   // 基准地面线 + 剖面短斜线
   const gy = cy + 272*S;
-  const gl=[[36,gy],[W-36,gy]];
+  const gl=[[36,gy,W-36,gy]];
   strokeGroup(gl,C.line,1);
   const hatch=[];
   for(let x=40;x<W-40;x+=13) hatch.push([x,gy,x-6,gy+6]);
